@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OpenClaw + MCP + MES 架构流程图</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Microsoft YaHei", "PingFang SC", sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 40px 20px;
+    min-height: 100vh;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+  h1 {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #60a5fa, #a78bfa);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle {
+    text-align: center;
+    font-size: 14px;
+    color: #94a3b8;
+    margin-bottom: 40px;
+  }
+
+  .layer { margin-bottom: 32px; position: relative; }
+  .layer-label {
+    font-size: 13px; font-weight: 600; color: #94a3b8;
+    text-transform: uppercase; letter-spacing: 2px;
+    margin-bottom: 12px; padding-left: 4px;
+  }
+  .layer-box {
+    background: #1e293b; border: 1px solid #334155;
+    border-radius: 12px; padding: 24px; position: relative;
+  }
+
+  .flow-row {
+    display: flex; align-items: center; justify-content: center;
+    gap: 0; flex-wrap: nowrap; margin-bottom: 24px;
+  }
+
+  .node {
+    background: #1e293b; border: 2px solid #475569;
+    border-radius: 12px; padding: 16px 20px;
+    text-align: center; min-width: 140px;
+    position: relative; transition: all 0.3s;
+  }
+  .node:hover {
+    border-color: #60a5fa;
+    box-shadow: 0 0 20px rgba(96, 165, 250, 0.15);
+    transform: translateY(-2px);
+  }
+  .node-icon { font-size: 28px; margin-bottom: 6px; }
+  .node-name { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .node-desc { font-size: 11px; color: #94a3b8; line-height: 1.4; }
+  .node.highlight { border-color: #60a5fa; background: linear-gradient(135deg, #1e293b, #1e3a5f); }
+  .node.green { border-color: #34d399; }
+  .node.green:hover { border-color: #34d399; box-shadow: 0 0 20px rgba(52, 211, 153, 0.15); }
+  .node.purple { border-color: #a78bfa; }
+  .node.purple:hover { border-color: #a78bfa; box-shadow: 0 0 20px rgba(167, 139, 250, 0.15); }
+  .node.orange { border-color: #fb923c; }
+  .node.orange:hover { border-color: #fb923c; box-shadow: 0 0 20px rgba(251, 146, 60, 0.15); }
+  .node.red { border-color: #f87171; }
+  .node.red:hover { border-color: #f87171; box-shadow: 0 0 20px rgba(248, 113, 113, 0.15); }
+  .node.cyan { border-color: #22d3ee; }
+  .node.cyan:hover { border-color: #22d3ee; box-shadow: 0 0 20px rgba(34, 211, 238, 0.15); }
+  .node.pink { border-color: #f472b6; }
+  .node.pink:hover { border-color: #f472b6; box-shadow: 0 0 20px rgba(244, 114, 182, 0.15); }
+
+  .arrow {
+    display: flex; align-items: center; justify-content: center;
+    min-width: 80px; position: relative; padding: 0 4px;
+  }
+  .arrow-line {
+    width: 60px; height: 2px;
+    background: linear-gradient(90deg, #475569, #60a5fa);
+    position: relative;
+  }
+  .arrow-line::after {
+    content: ''; position: absolute; right: -6px; top: -4px;
+    border: 5px solid transparent; border-left: 6px solid #60a5fa;
+  }
+  .arrow-label {
+    position: absolute; top: -18px; left: 50%; transform: translateX(-50%);
+    font-size: 10px; color: #94a3b8; white-space: nowrap;
+    background: #0f172a; padding: 0 6px;
+  }
+
+  .varrow {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; height: 40px; position: relative;
+  }
+  .varrow-line {
+    width: 2px; height: 24px;
+    background: linear-gradient(180deg, #475569, #60a5fa);
+    position: relative;
+  }
+  .varrow-line::after {
+    content: ''; position: absolute; bottom: -6px; left: -4px;
+    border: 5px solid transparent; border-top: 6px solid #60a5fa;
+  }
+  .varrow-label {
+    position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+    font-size: 10px; color: #94a3b8; white-space: nowrap;
+  }
+
+  .biz-section { margin-top: 40px; }
+  .biz-title {
+    font-size: 20px; font-weight: 700; margin-bottom: 24px; text-align: center;
+    background: linear-gradient(135deg, #34d399, #60a5fa);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .biz-layers {
+    display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;
+  }
+  .biz-card {
+    background: #1e293b; border: 1px solid #334155;
+    border-radius: 12px; padding: 20px;
+    flex: 1; min-width: 240px; max-width: 360px;
+  }
+  .biz-card-header {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+  }
+  .biz-card-icon {
+    font-size: 24px; width: 40px; height: 40px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 8px; background: #334155;
+  }
+  .biz-card-title { font-size: 15px; font-weight: 700; }
+  .biz-card-subtitle { font-size: 11px; color: #94a3b8; }
+  .biz-card-body { font-size: 12px; color: #cbd5e1; line-height: 1.8; }
+  .biz-card-body code {
+    background: #334155; padding: 1px 6px; border-radius: 4px;
+    font-size: 11px; color: #60a5fa;
+  }
+  .biz-card.border-blue { border-top: 3px solid #60a5fa; }
+  .biz-card.border-green { border-top: 3px solid #34d399; }
+  .biz-card.border-purple { border-top: 3px solid #a78bfa; }
+  .biz-card.border-orange { border-top: 3px solid #fb923c; }
+  .biz-card.border-red { border-top: 3px solid #f87171; }
+  .biz-card.border-cyan { border-top: 3px solid #22d3ee; }
+  .biz-card.border-pink { border-top: 3px solid #f472b6; }
+
+  .flow-section { margin-top: 40px; }
+  .flow-title {
+    font-size: 20px; font-weight: 700; margin-bottom: 24px; text-align: center;
+    background: linear-gradient(135deg, #fb923c, #f87171);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .flow-steps {
+    display: flex; flex-direction: column; gap: 0;
+    max-width: 700px; margin: 0 auto;
+  }
+  .flow-step {
+    display: flex; align-items: flex-start; gap: 16px; padding: 12px 0;
+  }
+  .flow-step-num {
+    width: 32px; height: 32px; border-radius: 50%; background: #334155;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: #60a5fa; flex-shrink: 0;
+  }
+  .flow-step-content { flex: 1; }
+  .flow-step-title { font-size: 13px; font-weight: 600; margin-bottom: 2px; }
+  .flow-step-desc { font-size: 11px; color: #94a3b8; line-height: 1.5; }
+  .flow-step-connector {
+    width: 32px; display: flex; justify-content: center; height: 8px;
+  }
+  .flow-step-connector::after {
+    content: ''; width: 2px; height: 8px; background: #334155;
+  }
+
+  /* Domain section */
+  .domain-section { margin-top: 40px; }
+  .domain-title {
+    font-size: 20px; font-weight: 700; margin-bottom: 24px; text-align: center;
+    background: linear-gradient(135deg, #22d3ee, #a78bfa);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .domain-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px; max-width: 900px; margin: 0 auto;
+  }
+  .domain-card {
+    background: #1e293b; border: 1px solid #334155;
+    border-radius: 12px; padding: 16px; text-align: center;
+    transition: all 0.3s;
+  }
+  .domain-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+  }
+  .domain-icon { font-size: 32px; margin-bottom: 8px; }
+  .domain-name { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+  .domain-server { font-size: 11px; color: #a78bfa; margin-bottom: 8px; }
+  .domain-tools { font-size: 11px; color: #94a3b8; line-height: 1.6; text-align: left; }
+  .domain-tools code {
+    background: #334155; padding: 1px 5px; border-radius: 3px;
+    font-size: 10px; color: #22d3ee;
+  }
+  .domain-card.dc-orange { border-top: 3px solid #fb923c; }
+  .domain-card.dc-cyan { border-top: 3px solid #22d3ee; }
+  .domain-card.dc-green { border-top: 3px solid #34d399; }
+  .domain-card.dc-purple { border-top: 3px solid #a78bfa; }
+  .domain-card.dc-pink { border-top: 3px solid #f472b6; }
+
+  /* Skill + Gateway section */
+  .sg-section { margin-top: 40px; }
+  .sg-title {
+    font-size: 20px; font-weight: 700; margin-bottom: 24px; text-align: center;
+    background: linear-gradient(135deg, #f472b6, #fbbf24);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .sg-row {
+    display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;
+    max-width: 900px; margin: 0 auto;
+  }
+  .sg-card {
+    background: #1e293b; border: 1px solid #334155;
+    border-radius: 12px; padding: 20px; flex: 1; min-width: 280px; max-width: 440px;
+  }
+  .sg-card-header {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+  }
+  .sg-card-icon {
+    font-size: 24px; width: 40px; height: 40px;
+    display: flex; align-items: center; justify-content: center;
+    border-radius: 8px; background: #334155;
+  }
+  .sg-card-title { font-size: 15px; font-weight: 700; }
+  .sg-card-subtitle { font-size: 11px; color: #94a3b8; }
+  .sg-card-body { font-size: 12px; color: #cbd5e1; line-height: 1.8; }
+  .sg-card-body code {
+    background: #334155; padding: 1px 6px; border-radius: 4px;
+    font-size: 11px; color: #f472b6;
+  }
+  .sg-card.border-pink { border-top: 3px solid #f472b6; }
+  .sg-card.border-yellow { border-top: 3px solid #fbbf24; }
+
+  .legend {
+    margin-top: 40px; display: flex; justify-content: center;
+    gap: 24px; flex-wrap: wrap;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; color: #94a3b8;
+  }
+  .legend-dot { width: 10px; height: 10px; border-radius: 50%; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <h1>OpenClaw + MCP + MES 架构流程</h1>
+  <p class="subtitle">钉钉员工 → AI 中枢 → MCP 网关 → MES 多域 MCP Server → MES 开放 API</p>
+
+  <!-- ===== Main Architecture Flow ===== -->
+  <div class="layer">
+    <div class="layer-label">整体架构</div>
+    <div class="layer-box">
+
+      <div style="margin-bottom:8px;">
+        <div class="flow-row">
+          <div class="node green">
+            <div class="node-icon">👤</div>
+            <div class="node-name">钉钉员工</div>
+            <div class="node-desc">发起对话请求<br/>"查一下工单WO-001"</div>
+          </div>
+          <div class="arrow">
+            <div class="arrow-line"></div>
+            <div class="arrow-label">消息</div>
+          </div>
+          <div class="node highlight">
+            <div class="node-icon">🤖</div>
+            <div class="node-name">钉钉机器人</div>
+            <div class="node-desc">OpenClaw 接入点<br/>识别用户身份</div>
+          </div>
+          <div class="arrow">
+            <div class="arrow-line"></div>
+            <div class="arrow-label">inbound</div>
+          </div>
+          <div class="node highlight">
+            <div class="node-icon">🧠</div>
+            <div class="node-name">OpenClaw</div>
+            <div class="node-desc">AI Agent 中枢<br/>意图识别 + 身份提取</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="varrow" style="margin: 8px 0 8px auto; margin-right: calc(50% - 70px - 10px);">
+        <div class="varrow-line"></div>
+        <div class="varrow-label">SKILL 指导 + mcporter</div>
+      </div>
+
+      <div style="margin-bottom:8px;">
+        <div class="flow-row">
+          <div class="node purple" style="visibility:hidden;">
+            <div class="node-icon">📦</div>
+            <div class="node-name">mcporter</div>
+          </div>
+          <div style="min-width:80px;"></div>
+          <div class="node purple">
+            <div class="node-icon">📦</div>
+            <div class="node-name">mcporter</div>
+            <div class="node-desc">MCP CLI 客户端<br/>动态注入用户身份</div>
+          </div>
+          <div class="arrow">
+            <div class="arrow-line"></div>
+            <div class="arrow-label">HTTP+Headers</div>
+          </div>
+          <div class="node purple">
+            <div class="node-icon">🌐</div>
+            <div class="node-name">MCP Gateway</div>
+            <div class="node-desc">协议网关<br/>路由 + 鉴权 + 权限控制</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="varrow" style="margin: 8px 0 8px auto; margin-right: calc(50% - 70px - 10px);">
+        <div class="varrow-line"></div>
+        <div class="varrow-label">MCP 协议（按域路由）</div>
+      </div>
+
+      <!-- Multi-domain MCP Servers -->
+      <div style="margin-bottom:8px;">
+        <div class="flow-row" style="flex-wrap:wrap; gap:12px;">
+          <div class="node orange" style="min-width:120px;">
+            <div class="node-icon">🏭</div>
+            <div class="node-name">生产域</div>
+            <div class="node-desc">MCP Server</div>
+          </div>
+          <div class="node cyan" style="min-width:120px;">
+            <div class="node-icon">🔍</div>
+            <div class="node-name">质量域</div>
+            <div class="node-desc">MCP Server</div>
+          </div>
+          <div class="node green" style="min-width:120px;">
+            <div class="node-icon">📦</div>
+            <div class="node-name">物料域</div>
+            <div class="node-desc">MCP Server</div>
+          </div>
+          <div class="node purple" style="min-width:120px;">
+            <div class="node-icon">⚙️</div>
+            <div class="node-name">设备域</div>
+            <div class="node-desc">MCP Server</div>
+          </div>
+          <div class="node pink" style="min-width:120px;">
+            <div class="node-icon">👷</div>
+            <div class="node-name">其他域</div>
+            <div class="node-desc">MCP Server</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="varrow" style="margin: 8px 0 8px auto; margin-right: calc(50% - 70px - 10px);">
+        <div class="varrow-line"></div>
+        <div class="varrow-label">API 调用</div>
+      </div>
+
+      <div style="margin-bottom:8px;">
+        <div class="flow-row">
+          <div class="node orange" style="visibility:hidden;min-width:120px;">
+            <div class="node-icon">⚙️</div>
+          </div>
+          <div style="min-width:80px;"></div>
+          <div class="node orange">
+            <div class="node-icon">⚙️</div>
+            <div class="node-name">MES 开放 API</div>
+            <div class="node-desc">MES 系统数据接口<br/>工单/报工/物料/设备等</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== MES Domain Decomposition ===== -->
+  <div class="domain-section">
+    <div class="domain-title">MES 业务域拆分 — 一域一 Server</div>
+    <div class="domain-grid">
+
+      <div class="domain-card dc-orange">
+        <div class="domain-icon">🏭</div>
+        <div class="domain-name">生产域</div>
+        <div class="domain-server">mes-production MCP Server</div>
+        <div class="domain-tools">
+          <code>get_workorder</code> 工单详情<br/>
+          <code>get_production_status</code> 生产进度<br/>
+          <code>get_report_work</code> 报工记录
+        </div>
+      </div>
+
+      <div class="domain-card dc-cyan">
+        <div class="domain-icon">🔍</div>
+        <div class="domain-name">质量域</div>
+        <div class="domain-server">mes-quality MCP Server</div>
+        <div class="domain-tools">
+          <code>get_inspection</code> 检验记录<br/>
+          <code>get_defect_stats</code> 缺陷统计<br/>
+          <code>get_quality_report</code> 质量报告
+        </div>
+      </div>
+
+      <div class="domain-card dc-green">
+        <div class="domain-icon">📦</div>
+        <div class="domain-name">物料域</div>
+        <div class="domain-server">mes-material MCP Server</div>
+        <div class="domain-tools">
+          <code>get_inventory</code> 库存查询<br/>
+          <code>get_bom</code> BOM 清单<br/>
+          <code>get_material_trace</code> 物料追溯
+        </div>
+      </div>
+
+      <div class="domain-card dc-purple">
+        <div class="domain-icon">⚙️</div>
+        <div class="domain-name">设备域</div>
+        <div class="domain-server">mes-equipment MCP Server</div>
+        <div class="domain-tools">
+          <code>get_device_status</code> 设备状态<br/>
+          <code>get_maintenance</code> 维保记录<br/>
+          <code>get_alarm_history</code> 告警历史
+        </div>
+      </div>
+
+      <div class="domain-card dc-pink">
+        <div class="domain-icon">👷</div>
+        <div class="domain-name">人员域</div>
+        <div class="domain-server">mes-personnel MCP Server</div>
+        <div class="domain-tools">
+          <code>get_shift</code> 班次排班<br/>
+          <code>get_operator</code> 操作员信息<br/>
+          <code>get_attendance</code> 考勤记录
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== SKILL + Gateway Dual Control ===== -->
+  <div class="sg-section">
+    <div class="sg-title">SKILL + Gateway 双重驱动</div>
+    <div class="sg-row">
+
+      <div class="sg-card border-pink">
+        <div class="sg-card-header">
+          <div class="sg-card-icon">📋</div>
+          <div>
+            <div class="sg-card-title">SKILL 层（智能指导）</div>
+            <div class="sg-card-subtitle">指导 Agent 正确调用</div>
+          </div>
+        </div>
+        <div class="sg-card-body">
+          每个业务域一个 SKILL，告诉 Agent：<br/><br/>
+          • 这个域能查什么（工具清单）<br/>
+          • 该调哪个 Server（<code>mes-production</code> / <code>mes-quality</code> ...）<br/>
+          • 参数怎么传（字段说明 + 示例）<br/>
+          • 边界在哪（跨域时转到对应 SKILL）<br/><br/>
+          <strong>作用：</strong>防止 Agent 调错域、传错参，确保准确驱动
+        </div>
+      </div>
+
+      <div class="sg-card border-yellow">
+        <div class="sg-card-header">
+          <div class="sg-card-icon">🛡️</div>
+          <div>
+            <div class="sg-card-title">Gateway 层（权限控制）</div>
+            <div class="sg-card-subtitle">按用户 + 域控制工具可见性</div>
+          </div>
+        </div>
+        <div class="sg-card-body">
+          MCP Gateway 为不同用户开放不同工具：<br/><br/>
+          <strong>作用：</strong>即使 Agent 尝试调用，Gateway 也会拦截越权请求
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== Business Layer Abstraction ===== -->
+  <div class="biz-section">
+    <div class="biz-title">业务层抽象</div>
+    <div class="biz-layers">
+
+      <div class="biz-card border-green">
+        <div class="biz-card-header">
+          <div class="biz-card-icon">👤</div>
+          <div>
+            <div class="biz-card-title">接入层</div>
+            <div class="biz-card-subtitle">Access Layer</div>
+          </div>
+        </div>
+        <div class="biz-card-body">
+          职责：用户身份识别 + 消息路由<br/><br/>
+          • 钉钉/飞书/企微 → 统一 inbound metadata<br/>
+          • 提取 <code>userId</code> <code>userName</code> <code>deptId</code><br/>
+          • 不同渠道适配，业务层无感知
+        </div>
+      </div>
+
+      <div class="biz-card border-blue">
+        <div class="biz-card-header">
+          <div class="biz-card-icon">🧠</div>
+          <div>
+            <div class="biz-card-title">智能层</div>
+            <div class="biz-card-subtitle">Intelligence Layer</div>
+          </div>
+        </div>
+        <div class="biz-card-body">
+          职责：意图理解 + 域识别 + 参数提取<br/><br/>
+          • 自然语言 → 识别业务域 → MCP 工具调用<br/>
+          • "查工单" → 生产域 → <code>mes-production.get_workorder</code><br/>
+          • SKILL 指导：正确域 + 正确工具 + 正确参数
+        </div>
+      </div>
+
+      <div class="biz-card border-purple">
+        <div class="biz-card-header">
+          <div class="biz-card-icon">📦</div>
+          <div>
+            <div class="biz-card-title">协议层</div>
+            <div class="biz-card-subtitle">Protocol Layer</div>
+          </div>
+        </div>
+        <div class="biz-card-body">
+          职责：MCP 通信 + 身份透传 + 权限执行<br/><br/>
+          • mcporter 动态配置注入用户身份<br/>
+          • <code>X-User-Id</code> / <code>X-User-Name</code> headers<br/>
+          • Gateway 按域路由 + 按权限过滤工具
+        </div>
+      </div>
+
+      <div class="biz-card border-orange">
+        <div class="biz-card-header">
+          <div class="biz-card-icon">⚙️</div>
+          <div>
+            <div class="biz-card-title">业务系统层</div>
+            <div class="biz-card-subtitle">Business System Layer</div>
+          </div>
+        </div>
+        <div class="biz-card-body">
+          职责：多域 MCP Server + 开放 API<br/><br/>
+          • 一域一 Server，独立部署独立演进<br/>
+          • 每个域封装自己的查询工具<br/>
+          • 调用 MES 开放 API 获取实际数据
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== Full Data Flow ===== -->
+  <div class="flow-section">
+    <div class="flow-title">完整数据流（单次查询）</div>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="flow-step-num">1</div>
+        <div class="flow-step-content">
+          <div class="flow-step-title">员工在钉钉发消息</div>
+          <div class="flow-step-desc">"帮我查一下工单 WO-001 的进度"</div>
+        </div>
+      </div>
+      <div class="flow-step-connector"></div>
+      <div class="flow-step">
+        <div class="flow-step-num">2</div>
+        <div class="flow-step-content">
+          <div class="flow-step-title">钉钉机器人 → OpenClaw</div>
+          <div class="flow-step-desc">消息 + inbound metadata（userId, userName, deptId）传入 OpenClaw</div>
+        </div>
+      </div>
+      <div class="flow-step-connector"></div>
+      <div class="flow-step">
+        <div class="flow-step-num">3</div>
+        <div class="flow-step-content">
+          <div class="flow-step-title">OpenClaw Agent 意图识别 + 域识别</div>
+          <div class="flow-step-desc">NLU 解析 → 意图：查询工单 → 域：生产域 → 工具：mes-production.get_workorder → 参数：id=WO-001</div>
+        </div>
+      </div>
+      <div class="flow-step-connector"></div>
+      <div class="flow-step">
+        <div class="flow-step-num">3.5</div>
+        <div class="flow-step-content">
+          <div class="flow-step-title">SKILL 匹配 → 加载 mes-production SKILL</div>
+          <div class="flow-step-desc">SKILL 指导 Agent：调用 mes-production Server，使用 get_workorder 工具，传入 id 参数</div>
+        </div>
+      </div>
+      <div class="flow-step-connector"></div>
+      <div class="flow-step">
+        <div class="flow-step-num">4</div>
+        <div class="flow-step-content">
+          <div class="flow-step-title">Agent 调用 mcporter-with-user.ps1</div>
+          <div class="flow-step-desc">传入 -Tool "mes-production.get_workorder" -UserId "A001" -UserName "张三" -ToolArgs '--args \'{"id":"WO-001"}\'</div>
+        </div>
+      </div>
+      <div class="flow-step-connector"></div>
+      <div class="flow-step">
+        <div class="flow-step-num">5</div>
+        <div class="flow-step-content">
+          <div class="flow-step-title">脚本生成临时配置 + 调用 mcporter</div>
+          <div class="flow-step-desc">读取模板 → 替换 {{USER_ID}}/{{USER_NAME}} → 写入临时 JSON → mcporter call --config 临时配置</div>
+        </div>
+      </div>
+      <div class="flow-step-connector"></div>
+      <div class="flow-step">
+        <div class="flow-step-num">6</div>
+        <div class="flow-step-content">
+          <div class="flow-step-title">mcporter → MCP Gateway</div>
+          <div class="flow-step-desc">HTTP 请求携带 Authorization + X-User-Id + X-User-Name headers，目标 mes-production Server</div>
+        </div>
+      </div>
+      <div class="flow-step-connector"></div>
+      <div class="flow-step">
+        <div class="flow-step-num">7</div>
+        <div class="flow-step-content">
+          <div class="flow-step-title">MCP Gateway 鉴权 + 权限校验 + 路由</div>
+          <div class="flow-step-desc">验证 Token → 检查该用户是否有权访问生产域 → 路由到 mes-production MCP Server</div>
+        </div>
+      </div>
+      <div class="flow-step-connector"></div>
+      <div class="flow-step">
+        <div class="flow-step-num">8</div>
+        <div class="flow-step-content">
+          <div class="flow-step-title">mes-production MCP Server → MES 开放 API</div>
+          <div class="flow-step-desc">调用 MES 工单查询 API，返回结构化结果</div>
+        </div>
+      </div>
+      <div class="flow-step-connector"></div>
+      <div class="flow-step">
+        <div class="flow-step-num">9</div>
+        <div class="flow-step-content">
+          <div class="flow-step-title">结果逐层返回 → OpenClaw 生成自然语言回复</div>
+          <div class="flow-step-desc">MES API → MCP Server → MCP Gateway → mcporter → Agent → "工单 WO-001 当前状态：生产中，完成度 75%"</div>
+        </div>
+      </div>
+      <div class="flow-step-connector"></div>
+      <div class="flow-step">
+        <div class="flow-step-num">10</div>
+        <div class="flow-step-content">
+          <div class="flow-step-title">钉钉员工收到回复</div>
+          <div class="flow-step-desc">脚本自动清理临时配置文件，整个流程完成</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Legend -->
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#34d399;"></div>接入层</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#60a5fa;"></div>智能层</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#a78bfa;"></div>协议层</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#fb923c;"></div>生产域</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#22d3ee;"></div>质量域</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f472b6;"></div>其他域</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#fbbf24;"></div>Gateway 权限</div>
+  </div>
+
+</div>
+</body>
+</html>

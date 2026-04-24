@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MES 知识图谱</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Microsoft YaHei", "PingFang SC", sans-serif;
+    background: #0f172a;
+    color: #e2e8f0;
+    padding: 40px 20px;
+    min-height: 100vh;
+  }
+  .container { max-width: 1200px; margin: 0 auto; }
+  h1 {
+    text-align: center; font-size: 28px; font-weight: 700; margin-bottom: 8px;
+    background: linear-gradient(135deg, #22d3ee, #a78bfa);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .subtitle {
+    text-align: center; font-size: 14px; color: #94a3b8; margin-bottom: 12px;
+  }
+  .legend {
+    display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;
+    margin-bottom: 32px;
+  }
+  .legend-item {
+    display: flex; align-items: center; gap: 6px; font-size: 12px; color: #94a3b8;
+  }
+  .legend-dot { width: 12px; height: 12px; border-radius: 50%; }
+
+  /* SVG graph */
+  .graph-container {
+    background: #1e293b; border: 1px solid #334155;
+    border-radius: 16px; padding: 20px; margin-bottom: 40px;
+    overflow-x: auto;
+  }
+  svg text { font-family: -apple-system, "Microsoft YaHei", "PingFang SC", sans-serif; }
+
+  /* Domain grouping labels */
+  .domain-label {
+    font-size: 13px; font-weight: 700; fill: #94a3b8; letter-spacing: 1px;
+  }
+
+  /* Edge labels */
+  .edge-label {
+    font-size: 10px; fill: #94a3b8;
+  }
+
+  /* Node styling via CSS classes */
+  .node-circle { stroke-width: 3; transition: all 0.3s; }
+  .node-circle:hover { filter: brightness(1.3); }
+  .node-icon { font-size: 20px; }
+  .node-text { font-size: 12px; font-weight: 700; fill: #e2e8f0; }
+  .node-sub { font-size: 9px; fill: #94a3b8; }
+
+  /* Query path section */
+  .query-section { margin-top: 40px; }
+  .query-title {
+    font-size: 20px; font-weight: 700; margin-bottom: 24px; text-align: center;
+    background: linear-gradient(135deg, #fb923c, #f87171);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .query-cards {
+    display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;
+  }
+  .query-card {
+    background: #1e293b; border: 1px solid #334155;
+    border-radius: 12px; padding: 20px; min-width: 300px; max-width: 380px; flex: 1;
+  }
+  .query-card.border-orange { border-top: 3px solid #fb923c; }
+  .query-card.border-cyan { border-top: 3px solid #22d3ee; }
+  .query-card.border-purple { border-top: 3px solid #a78bfa; }
+  .query-q {
+    font-size: 13px; font-weight: 600; color: #fbbf24; margin-bottom: 10px;
+    padding: 8px 12px; background: #334155; border-radius: 8px; line-height: 1.5;
+  }
+  .query-path {
+    font-size: 12px; color: #cbd5e1; line-height: 2;
+  }
+  .query-path .step {
+    display: inline-flex; align-items: center; gap: 4px;
+    background: #334155; padding: 2px 8px; border-radius: 6px;
+    margin: 2px 0;
+  }
+  .query-path .step .s-icon { font-size: 14px; }
+  .query-path .step .s-name { font-weight: 600; }
+  .query-path .step .s-tool { font-size: 10px; color: #22d3ee; }
+  .query-path .arrow-r { color: #60a5fa; margin: 0 4px; font-size: 12px; }
+  .query-result {
+    font-size: 12px; color: #34d399; margin-top: 10px;
+    padding: 8px 12px; background: rgba(52, 211, 153, 0.1);
+    border-radius: 8px; border-left: 3px solid #34d399;
+  }
+
+  /* Schema section */
+  .schema-section { margin-top: 40px; }
+  .schema-title {
+    font-size: 20px; font-weight: 700; margin-bottom: 24px; text-align: center;
+    background: linear-gradient(135deg, #a78bfa, #f472b6);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .schema-table {
+    width: 100%; max-width: 900px; margin: 0 auto;
+    border-collapse: collapse; font-size: 12px;
+  }
+  .schema-table th {
+    background: #334155; padding: 10px 14px; text-align: left;
+    font-weight: 600; color: #94a3b8; border-bottom: 2px solid #475569;
+  }
+  .schema-table td {
+    padding: 10px 14px; border-bottom: 1px solid #334155; color: #cbd5e1;
+  }
+  .schema-table tr:hover td { background: rgba(96, 165, 250, 0.05); }
+  .schema-table code {
+    background: #334155; padding: 1px 6px; border-radius: 4px;
+    font-size: 11px; color: #22d3ee;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <h1>MES 知识图谱</h1>
+  <p class="subtitle">实体关系图谱 — Agent 自主推理的数据地图</p>
+
+  <div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:#fb923c;"></div>生产域</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#22d3ee;"></div>质量域</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#34d399;"></div>物料域</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#a78bfa;"></div>设备域</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#f472b6;"></div>人员域</div>
+    <div class="legend-item"><div class="legend-dot" style="background:#60a5fa; border:2px solid #60a5fa; background:transparent; width:8px; height:8px;"></div>跨域关系</div>
+  </div>
+
+  <!-- ===== Knowledge Graph SVG ===== -->
+  <div class="graph-container">
+    <svg viewBox="0 0 1100 700" width="100%" xmlns="http://www.w3.org/2000/svg">
+
+      <!-- Domain background zones -->
+      <!-- Production zone -->
+      <rect x="30" y="30" width="320" height="300" rx="16" fill="#fb923c" fill-opacity="0.06" stroke="#fb923c" stroke-opacity="0.2" stroke-width="1" stroke-dasharray="6 3"/>
+      <text x="50" y="58" class="domain-label" fill="#fb923c">🏭 生产域</text>
+
+      <!-- Quality zone -->
+      <rect x="750" y="30" width="320" height="300" rx="16" fill="#22d3ee" fill-opacity="0.06" stroke="#22d3ee" stroke-opacity="0.2" stroke-width="1" stroke-dasharray="6 3"/>
+      <text x="770" y="58" class="domain-label" fill="#22d3ee">🔍 质量域</text>
+
+      <!-- Material zone -->
+      <rect x="30" y="380" width="320" height="290" rx="16" fill="#34d399" fill-opacity="0.06" stroke="#34d399" stroke-opacity="0.2" stroke-width="1" stroke-dasharray="6 3"/>
+      <text x="50" y="408" class="domain-label" fill="#34d399">📦 物料域</text>
+
+      <!-- Equipment zone -->
+      <rect x="750" y="380" width="320" height="290" rx="16" fill="#a78bfa" fill-opacity="0.06" stroke="#a78bfa" stroke-opacity="0.2" stroke-width="1" stroke-dasharray="6 3"/>
+      <text x="770" y="408" class="domain-label" fill="#a78bfa">⚙️ 设备域</text>
+
+      <!-- Personnel zone (center) -->
+      <rect x="400" y="260" width="300" height="200" rx="16" fill="#f472b6" fill-opacity="0.06" stroke="#f472b6" stroke-opacity="0.2" stroke-width="1" stroke-dasharray="6 3"/>
+      <text x="420" y="288" class="domain-label" fill="#f472b6">👷 人员域</text>
+
+      <!-- ===== EDGES (draw first, behind nodes) ===== -->
+
+      <!-- Intra-domain edges (same color, lighter) -->
+      <!-- WorkOrder -> ReportWork -->
+      <line x1="130" y1="130" x2="260" y2="130" stroke="#fb923c" stroke-opacity="0.5" stroke-width="2"/>
+      <text x="170" y="122" class="edge-label" fill="#fb923c">has_report</text>
+
+      <!-- Material -> BOM -->
+      <line x1="130" y1="480" x2="260" y2="480" stroke="#34d399" stroke-opacity="0.5" stroke-width="2"/>
+      <text x="175" y="472" class="edge-label" fill="#34d399">has_bom</text>
+
+      <!-- Material -> Inventory -->
+      <line x1="130" y1="520" x2="260" y2="580" stroke="#34d399" stroke-opacity="0.5" stroke-width="2"/>
+      <text x="155" y="558" class="edge-label" fill="#34d399">has_inventory</text>
+
+      <!-- Device -> Maintenance -->
+      <line x1="850" y1="480" x2="980" y2="480" stroke="#a78bfa" stroke-opacity="0.5" stroke-width="2"/>
+      <text x="880" y="472" class="edge-label" fill="#a78bfa">has_maintenance</text>
+
+      <!-- Device -> Alarm -->
+      <line x1="850" y1="520" x2="980" y2="580" stroke="#a78bfa" stroke-opacity="0.5" stroke-width="2"/>
+      <text x="875" y="558" class="edge-label" fill="#a78bfa">has_alarm</text>
+
+      <!-- Inspection -> Defect -->
+      <line x1="850" y1="130" x2="980" y2="130" stroke="#22d3ee" stroke-opacity="0.5" stroke-width="2"/>
+      <text x="870" y="122" class="edge-label" fill="#22d3ee">has_defect</text>
+
+      <!-- Operator -> Shift -->
+      <line x1="500" y1="370" x2="620" y2="370" stroke="#f472b6" stroke-opacity="0.5" stroke-width="2"/>
+      <text x="530" y="362" class="edge-label" fill="#f472b6">on_shift</text>
+
+      <!-- Cross-domain edges (blue, dashed) -->
+      <!-- WorkOrder -> Material (uses_material) -->
+      <path d="M 130 170 Q 130 350 130 460" stroke="#60a5fa" stroke-opacity="0.6" stroke-width="2" stroke-dasharray="6 3" fill="none"/>
+      <text x="60" y="320" class="edge-label" fill="#60a5fa">uses_material</text>
+
+      <!-- WorkOrder -> Device (produced_on) -->
+      <path d="M 260 170 Q 550 100 850 460" stroke="#60a5fa" stroke-opacity="0.6" stroke-width="2" stroke-dasharray="6 3" fill="none"/>
+      <text x="520" y="180" class="edge-label" fill="#60a5fa">produced_on</text>
+
+      <!-- WorkOrder -> Inspection (inspected_by) -->
+      <path d="M 260 130 Q 550 60 850 130" stroke="#60a5fa" stroke-opacity="0.6" stroke-width="2" stroke-dasharray="6 3" fill="none"/>
+      <text x="520" y="80" class="edge-label" fill="#60a5fa">inspected_by</text>
+
+      <!-- WorkOrder -> Operator (operated_by) -->
+      <path d="M 200 170 Q 350 280 500 340" stroke="#60a5fa" stroke-opacity="0.6" stroke-width="2" stroke-dasharray="6 3" fill="none"/>
+      <text x="300" y="260" class="edge-label" fill="#60a5fa">operated_by</text>
+
+      <!-- Device -> Operator (maintained_by) -->
+      <path d="M 850 520 Q 750 450 620 390" stroke="#60a5fa" stroke-opacity="0.6" stroke-width="2" stroke-dasharray="6 3" fill="none"/>
+      <text x="720" y="470" class="edge-label" fill="#60a5fa">maintained_by</text>
+
+      <!-- Inspection -> Operator (performed_by) -->
+      <path d="M 850 170 Q 700 250 620 340" stroke="#60a5fa" stroke-opacity="0.6" stroke-width="2" stroke-dasharray="6 3" fill="none"/>
+      <text x="700" y="240" class="edge-label" fill="#60a5fa">performed_by</text>
+
+      <!-- Material -> Device (consumed_by) -->
+      <path d="M 260 520 Q 550 650 850 520" stroke="#60a5fa" stroke-opacity="0.6" stroke-width="2" stroke-dasharray="6 3" fill="none"/>
+      <text x="520" y="610" class="edge-label" fill="#60a5fa">consumed_by_device</text>
+
+      <!-- ===== NODES ===== -->
+
+      <!-- Production domain nodes -->
+      <!-- WorkOrder -->
+      <circle cx="130" cy="130" r="36" fill="#1e293b" stroke="#fb923c" stroke-width="3" class="node-circle"/>
+      <text x="130" y="126" text-anchor="middle" class="node-icon">📋</text>
+      <text x="130" y="142" text-anchor="middle" class="node-sub">工单</text>
+
+      <!-- ReportWork -->
+      <circle cx="260" cy="130" r="30" fill="#1e293b" stroke="#fb923c" stroke-width="2" class="node-circle"/>
+      <text x="260" y="126" text-anchor="middle" class="node-icon">📝</text>
+      <text x="260" y="142" text-anchor="middle" class="node-sub">报工</text>
+
+      <!-- Quality domain nodes -->
+      <!-- Inspection -->
+      <circle cx="850" cy="130" r="36" fill="#1e293b" stroke="#22d3ee" stroke-width="3" class="node-circle"/>
+      <text x="850" y="126" text-anchor="middle" class="node-icon">🔎</text>
+      <text x="850" y="142" text-anchor="middle" class="node-sub">检验</text>
+
+      <!-- Defect -->
+      <circle cx="980" cy="130" r="30" fill="#1e293b" stroke="#22d3ee" stroke-width="2" class="node-circle"/>
+      <text x="980" y="126" text-anchor="middle" class="node-icon">⚠️</text>
+      <text x="980" y="142" text-anchor="middle" class="node-sub">缺陷</text>
+
+      <!-- Material domain nodes -->
+      <!-- Material -->
+      <circle cx="130" cy="490" r="36" fill="#1e293b" stroke="#34d399" stroke-width="3" class="node-circle"/>
+      <text x="130" y="486" text-anchor="middle" class="node-icon">🧱</text>
+      <text x="130" y="502" text-anchor="middle" class="node-sub">物料</text>
+
+      <!-- BOM -->
+      <circle cx="260" cy="480" r="30" fill="#1e293b" stroke="#34d399" stroke-width="2" class="node-circle"/>
+      <text x="260" y="476" text-anchor="middle" class="node-icon">📄</text>
+      <text x="260" y="492" text-anchor="middle" class="node-sub">BOM</text>
+
+      <!-- Inventory -->
+      <circle cx="260" cy="580" r="30" fill="#1e293b" stroke="#34d399" stroke-width="2" class="node-circle"/>
+      <text x="260" y="576" text-anchor="middle" class="node-icon">🏪</text>
+      <text x="260" y="592" text-anchor="middle" class="node-sub">库存</text>
+
+      <!-- Equipment domain nodes -->
+      <!-- Device -->
+      <circle cx="850" cy="490" r="36" fill="#1e293b" stroke="#a78bfa" stroke-width="3" class="node-circle"/>
+      <text x="850" y="486" text-anchor="middle" class="node-icon">🔩</text>
+      <text x="850" y="502" text-anchor="middle" class="node-sub">设备</text>
+
+      <!-- Maintenance -->
+      <circle cx="980" cy="480" r="30" fill="#1e293b" stroke="#a78bfa" stroke-width="2" class="node-circle"/>
+      <text x="980" y="476" text-anchor="middle" class="node-icon">🔧</text>
+      <text x="980" y="492" text-anchor="middle" class="node-sub">维保</text>
+
+      <!-- Alarm -->
+      <circle cx="980" cy="580" r="30" fill="#1e293b" stroke="#a78bfa" stroke-width="2" class="node-circle"/>
+      <text x="980" y="576" text-anchor="middle" class="node-icon">🚨</text>
+      <text x="980" y="592" text-anchor="middle" class="node-sub">告警</text>
+
+      <!-- Personnel domain nodes -->
+      <!-- Operator -->
+      <circle cx="500" cy="350" r="36" fill="#1e293b" stroke="#f472b6" stroke-width="3" class="node-circle"/>
+      <text x="500" y="346" text-anchor="middle" class="node-icon">👷</text>
+      <text x="500" y="362" text-anchor="middle" class="node-sub">操作员</text>
+
+      <!-- Shift -->
+      <circle cx="620" cy="370" r="30" fill="#1e293b" stroke="#f472b6" stroke-width="2" class="node-circle"/>
+      <text x="620" y="366" text-anchor="middle" class="node-icon">🕐</text>
+      <text x="620" y="382" text-anchor="middle" class="node-sub">班次</text>
+
+    </svg>
+  </div>
+
+  <!-- ===== Query Path Examples ===== -->
+  <div class="query-section">
+    <div class="query-title">图谱推理示例 — Agent 自主规划查询路径</div>
+    <div class="query-cards">
+
+      <div class="query-card border-orange">
+        <div class="query-q">💬 "工单 WO-001 用的物料有没有缺料的？"</div>
+        <div class="query-path">
+          <span class="step"><span class="s-icon">📋</span><span class="s-name">工单</span><span class="s-tool">get_workorder</span></span>
+          <span class="arrow-r">→</span>
+          <span style="color:#60a5fa;font-size:11px;">uses_material</span>
+          <span class="arrow-r">→</span>
+          <span class="step"><span class="s-icon">🧱</span><span class="s-name">物料</span><span class="s-tool">get_bom</span></span>
+          <span class="arrow-r">→</span>
+          <span style="color:#34d399;font-size:11px;">has_inventory</span>
+          <span class="arrow-r">→</span>
+          <span class="step"><span class="s-icon">🏪</span><span class="s-name">库存</span><span class="s-tool">get_inventory</span></span>
+        </div>
+        <div class="query-result">✅ M-100 库存充足，M-200 缺料 50 件</div>
+      </div>
+
+      <div class="query-card border-cyan">
+        <div class="query-q">💬 "设备 CNC-03 最近的告警谁在负责维保？"</div>
+        <div class="query-path">
+          <span class="step"><span class="s-icon">🔩</span><span class="s-name">设备</span><span class="s-tool">get_device_status</span></span>
+          <span class="arrow-r">→</span>
+          <span style="color:#a78bfa;font-size:11px;">has_alarm</span>
+          <span class="arrow-r">→</span>
+          <span class="step"><span class="s-icon">🚨</span><span class="s-name">告警</span><span class="s-tool">get_alarm_history</span></span>
+          <span class="arrow-r">→</span>
+          <span style="color:#60a5fa;font-size:11px;">maintained_by</span>
+          <span class="arrow-r">→</span>
+          <span class="step"><span class="s-icon">👷</span><span class="s-name">操作员</span><span class="s-tool">get_operator</span></span>
+        </div>
+        <div class="query-result">✅ 设备 CNC-03 最近告警 3 次，维保负责人：张三</div>
+      </div>
+
+      <div class="query-card border-purple">
+        <div class="query-q">💬 "工单 WO-001 的质检合格率多少？"</div>
+        <div class="query-path">
+          <span class="step"><span class="s-icon">📋</span><span class="s-name">工单</span><span class="s-tool">get_workorder</span></span>
+          <span class="arrow-r">→</span>
+          <span style="color:#60a5fa;font-size:11px;">inspected_by</span>
+          <span class="arrow-r">→</span>
+          <span class="step"><span class="s-icon">🔎</span><span class="s-name">检验</span><span class="s-tool">get_inspection</span></span>
+          <span class="arrow-r">→</span>
+          <span style="color:#22d3ee;font-size:11px;">has_defect</span>
+          <span class="arrow-r">→</span>
+          <span class="step"><span class="s-icon">⚠️</span><span class="s-name">缺陷</span><span class="s-tool">get_defect_stats</span></span>
+        </div>
+        <div class="query-result">✅ 检验 120 件，缺陷 3 件，合格率 97.5%</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ===== Schema: Entity + Relation + Tool Mapping ===== -->
+  <div class="schema-section">
+    <div class="schema-title">图谱 Schema — 实体、关系、工具映射</div>
+    <table class="schema-table">
+      <thead>
+        <tr>
+          <th>类型</th>
+          <th>名称</th>
+          <th>所属域</th>
+          <th>MCP 工具</th>
+          <th>说明</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>实体</td>
+          <td>WorkOrder</td>
+          <td style="color:#fb923c;">生产域</td>
+          <td><code>mes-production.get_workorder</code></td>
+          <td>工单</td>
+        </tr>
+        <tr>
+          <td>实体</td>
+          <td>ReportWork</td>
+          <td style="color:#fb923c;">生产域</td>
+          <td><code>mes-production.get_report_work</code></td>
+          <td>报工记录</td>
+        </tr>
+        <tr>
+          <td>实体</td>
+          <td>Inspection</td>
+          <td style="color:#22d3ee;">质量域</td>
+          <td><code>mes-quality.get_inspection</code></td>
+          <td>检验记录</td>
+        </tr>
+        <tr>
+          <td>实体</td>
+          <td>Defect</td>
+          <td style="color:#22d3ee;">质量域</td>
+          <td><code>mes-quality.get_defect_stats</code></td>
+          <td>缺陷统计</td>
+        </tr>
+        <tr>
+          <td>实体</td>
+          <td>Material</td>
+          <td style="color:#34d399;">物料域</td>
+          <td><code>mes-material.get_bom</code></td>
+          <td>物料</td>
+        </tr>
+        <tr>
+          <td>实体</td>
+          <td>Inventory</td>
+          <td style="color:#34d399;">物料域</td>
+          <td><code>mes-material.get_inventory</code></td>
+          <td>库存</td>
+        </tr>
+        <tr>
+          <td>实体</td>
+          <td>Device</td>
+          <td style="color:#a78bfa;">设备域</td>
+          <td><code>mes-equipment.get_device_status</code></td>
+          <td>设备</td>
+        </tr>
+        <tr>
+          <td>实体</td>
+          <td>Maintenance</td>
+          <td style="color:#a78bfa;">设备域</td>
+          <td><code>mes-equipment.get_maintenance</code></td>
+          <td>维保记录</td>
+        </tr>
+        <tr>
+          <td>实体</td>
+          <td>Alarm</td>
+          <td style="color:#a78bfa;">设备域</td>
+          <td><code>mes-equipment.get_alarm_history</code></td>
+          <td>告警历史</td>
+        </tr>
+        <tr>
+          <td>实体</td>
+          <td>Operator</td>
+          <td style="color:#f472b6;">人员域</td>
+          <td><code>mes-personnel.get_operator</code></td>
+          <td>操作员</td>
+        </tr>
+        <tr>
+          <td>实体</td>
+          <td>Shift</td>
+          <td style="color:#f472b6;">人员域</td>
+          <td><code>mes-personnel.get_shift</code></td>
+          <td>班次排班</td>
+        </tr>
+        <tr style="background:#334155; background-opacity:0.3;">
+          <td colspan="5" style="color:#94a3b8; font-weight:600; padding-top:14px;">关系（边）</td>
+        </tr>
+        <tr>
+          <td>关系</td>
+          <td>uses_material</td>
+          <td style="color:#60a5fa;">跨域</td>
+          <td><code>mes-material.get_bom</code></td>
+          <td>WorkOrder → Material</td>
+        </tr>
+        <tr>
+          <td>关系</td>
+          <td>produced_on</td>
+          <td style="color:#60a5fa;">跨域</td>
+          <td><code>mes-equipment.get_device_status</code></td>
+          <td>WorkOrder → Device</td>
+        </tr>
+        <tr>
+          <td>关系</td>
+          <td>inspected_by</td>
+          <td style="color:#60a5fa;">跨域</td>
+          <td><code>mes-quality.get_inspection</code></td>
+          <td>WorkOrder → Inspection</td>
+        </tr>
+        <tr>
+          <td>关系</td>
+          <td>operated_by</td>
+          <td style="color:#60a5fa;">跨域</td>
+          <td><code>mes-personnel.get_operator</code></td>
+          <td>WorkOrder → Operator</td>
+        </tr>
+        <tr>
+          <td>关系</td>
+          <td>maintained_by</td>
+          <td style="color:#60a5fa;">跨域</td>
+          <td><code>mes-personnel.get_operator</code></td>
+          <td>Device → Operator</td>
+        </tr>
+        <tr>
+          <td>关系</td>
+          <td>performed_by</td>
+          <td style="color:#60a5fa;">跨域</td>
+          <td><code>mes-personnel.get_operator</code></td>
+          <td>Inspection → Operator</td>
+        </tr>
+        <tr>
+          <td>关系</td>
+          <td>consumed_by_device</td>
+          <td style="color:#60a5fa;">跨域</td>
+          <td><code>mes-equipment.get_device_status</code></td>
+          <td>Material → Device</td>
+        </tr>
+        <tr>
+          <td>关系</td>
+          <td>has_report</td>
+          <td style="color:#fb923c;">域内</td>
+          <td><code>mes-production.get_report_work</code></td>
+          <td>WorkOrder → ReportWork</td>
+        </tr>
+        <tr>
+          <td>关系</td>
+          <td>has_bom</td>
+          <td style="color:#34d399;">域内</td>
+          <td><code>mes-material.get_bom</code></td>
+          <td>Material → BOM</td>
+        </tr>
+        <tr>
+          <td>关系</td>
+          <td>has_inventory</td>
+          <td style="color:#34d399;">域内</td>
+          <td><code>mes-material.get_inventory</code></td>
+          <td>Material → Inventory</td>
+        </tr>
+        <tr>
+          <td>关系</td>
+          <td>has_maintenance</td>
+          <td style="color:#a78bfa;">域内</td>
+          <td><code>mes-equipment.get_maintenance</code></td>
+          <td>Device → Maintenance</td>
+        </tr>
+        <tr>
+          <td>关系</td>
+          <td>has_alarm</td>
+          <td style="color:#a78bfa;">域内</td>
+          <td><code>mes-equipment.get_alarm_history</code></td>
+          <td>Device → Alarm</td>
+        </tr>
+        <tr>
+          <td>关系</td>
+          <td>has_defect</td>
+          <td style="color:#22d3ee;">域内</td>
+          <td><code>mes-quality.get_defect_stats</code></td>
+          <td>Inspection → Defect</td>
+        </tr>
+        <tr>
+          <td>关系</td>
+          <td>on_shift</td>
+          <td style="color:#f472b6;">域内</td>
+          <td><code>mes-personnel.get_shift</code></td>
+          <td>Operator → Shift</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,1326 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>集团 AI 知识中台 — 全景架构</title>
+<style>
+/* ====== APPLE DESIGN SYSTEM — Light-First ====== */
+:root {
+  --pure-black: #000000;
+  --light-gray: #f5f5f7;
+  --near-black: #1d1d1f;
+  --apple-blue: #0071e3;
+  --link-blue: #0066cc;
+  --bright-blue: #2997ff;
+  --white: #ffffff;
+  --text-secondary: rgba(0, 0, 0, 0.8);
+  --text-tertiary: rgba(0, 0, 0, 0.48);
+  --text-quaternary: rgba(0, 0, 0, 0.28);
+  --font-display: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --font-text: 'SF Pro Text', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --radius-micro: 5px;
+  --radius-standard: 8px;
+  --radius-large: 12px;
+  --radius-pill: 980px;
+  --radius-circle: 50%;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+body {
+  font-family: var(--font-text);
+  font-size: 17px; font-weight: 400; line-height: 1.47; letter-spacing: -0.374px;
+  color: var(--near-black); background: var(--white); overflow-x: hidden;
+}
+
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.12); border-radius: 3px; }
+
+/* ====== NAV ====== */
+.nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: saturate(180%) blur(20px);
+  -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid rgba(0,0,0,0.06);
+  height: 48px;
+}
+.nav-inner {
+  max-width: 980px; margin: 0 auto; padding: 0 22px;
+  display: flex; align-items: center; height: 48px; gap: 20px;
+}
+.nav-brand {
+  font-family: var(--font-text); font-size: 12px; font-weight: 600;
+  color: var(--near-black); letter-spacing: normal; white-space: nowrap;
+}
+.nav-links { display: flex; gap: 2px; overflow-x: auto; }
+.nav-links a {
+  font-family: var(--font-text); font-size: 12px; font-weight: 400;
+  color: rgba(0,0,0,0.8); text-decoration: none;
+  padding: 6px 10px; border-radius: var(--radius-pill);
+  white-space: nowrap; transition: background 0.2s;
+}
+.nav-links a:hover { background: rgba(0,0,0,0.04); text-decoration: underline; }
+
+/* ====== SECTIONS ====== */
+.section-white { background: var(--white); color: var(--near-black); padding: 120px 22px; }
+.section-gray { background: var(--light-gray); color: var(--near-black); padding: 120px 22px; }
+.section-inner { max-width: 980px; margin: 0 auto; }
+
+/* ====== HERO — Light ====== */
+.hero {
+  background: var(--light-gray); color: var(--near-black);
+  min-height: 85vh; display: flex; align-items: center; justify-content: center;
+  padding: 120px 22px 80px;
+}
+.hero-content { text-align: center; max-width: 780px; }
+.hero-eyebrow {
+  font-family: var(--font-text); font-size: 14px; font-weight: 600;
+  color: var(--apple-blue); letter-spacing: normal; margin-bottom: 20px;
+}
+.hero-title {
+  font-family: var(--font-display); font-size: 56px; font-weight: 600;
+  line-height: 1.07; letter-spacing: -0.28px; margin-bottom: 20px;
+}
+.hero-title .gradient {
+  background: linear-gradient(90deg, var(--apple-blue) 0%, var(--bright-blue) 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.hero-sub {
+  font-family: var(--font-display); font-size: 21px; font-weight: 400;
+  line-height: 1.19; letter-spacing: 0.231px;
+  color: var(--text-secondary); margin-bottom: 40px;
+}
+.hero-ctas { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+
+/* ====== BUTTONS ====== */
+.btn-primary {
+  display: inline-block; background: var(--apple-blue); color: var(--white);
+  font-family: var(--font-text); font-size: 17px; font-weight: 400;
+  line-height: 2.41; letter-spacing: normal;
+  padding: 0 15px; border-radius: var(--radius-standard);
+  border: none; text-decoration: none; transition: background 0.2s;
+}
+.btn-primary:hover { background: #0077ed; }
+.btn-pill {
+  display: inline-block; background: transparent;
+  color: var(--link-blue);
+  font-family: var(--font-text); font-size: 17px; font-weight: 400;
+  line-height: 2.41; letter-spacing: normal;
+  padding: 0 15px; border-radius: var(--radius-pill);
+  border: 1px solid var(--link-blue); text-decoration: none; transition: text-decoration 0.2s;
+}
+.btn-pill:hover { text-decoration: underline; }
+
+/* ====== SECTION HEADERS ====== */
+.section-header { text-align: center; margin-bottom: 80px; }
+.section-number {
+  font-family: var(--font-text); font-size: 14px; font-weight: 600;
+  color: var(--apple-blue); letter-spacing: normal; margin-bottom: 12px;
+}
+.section-title {
+  font-family: var(--font-display); font-size: 56px; font-weight: 600;
+  line-height: 1.07; letter-spacing: -0.28px;
+  color: var(--near-black); margin-bottom: 16px;
+}
+.section-desc {
+  font-family: var(--font-display); font-size: 21px; font-weight: 400;
+  line-height: 1.19; letter-spacing: 0.231px;
+  color: var(--text-secondary); max-width: 600px; margin: 0 auto;
+}
+
+/* ====== PAIN POINTS ====== */
+.pain-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+.pain-item {
+  background: var(--light-gray); border-radius: var(--radius-standard);
+  padding: 28px 32px;
+}
+.pain-label {
+  font-family: var(--font-text); font-size: 12px; font-weight: 600;
+  letter-spacing: -0.12px; margin-bottom: 8px;
+}
+.pain-title {
+  font-family: var(--font-display); font-size: 21px; font-weight: 600;
+  line-height: 1.19; letter-spacing: 0.231px;
+  color: var(--near-black); margin-bottom: 6px;
+}
+.pain-desc {
+  font-family: var(--font-text); font-size: 14px; font-weight: 400;
+  line-height: 1.29; letter-spacing: -0.224px; color: var(--text-secondary);
+}
+
+/* ====== GOALS ====== */
+.goals-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.goal-card {
+  background: var(--white); border-radius: var(--radius-standard);
+  padding: 28px 32px;
+}
+.goal-tag {
+  font-family: var(--font-text); font-size: 12px; font-weight: 600;
+  letter-spacing: -0.12px; color: var(--apple-blue); margin-bottom: 12px;
+}
+.goal-title {
+  font-family: var(--font-display); font-size: 21px; font-weight: 700;
+  line-height: 1.19; letter-spacing: 0.231px;
+  color: var(--near-black); margin-bottom: 8px;
+}
+.goal-desc {
+  font-family: var(--font-text); font-size: 14px; font-weight: 400;
+  line-height: 1.29; letter-spacing: -0.224px; color: var(--text-secondary);
+}
+
+/* ====== PRINCIPLES ====== */
+.principles-row { display: flex; gap: 40px; justify-content: center; flex-wrap: wrap; }
+.principle-item { text-align: center; max-width: 160px; }
+.principle-icon { font-size: 32px; margin-bottom: 12px; }
+.principle-name {
+  font-family: var(--font-display); font-size: 21px; font-weight: 600;
+  line-height: 1.19; letter-spacing: 0.231px;
+  color: var(--near-black); margin-bottom: 6px;
+}
+.principle-desc {
+  font-family: var(--font-text); font-size: 14px; font-weight: 400;
+  line-height: 1.29; letter-spacing: -0.224px; color: var(--text-secondary);
+}
+
+/* ====== ARCH SVG DIAGRAM ====== */
+.arch-diagram-wrap {
+  background: var(--white); border-radius: var(--radius-large);
+  padding: 32px 16px; overflow-x: auto;
+}
+.arch-diagram-wrap svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+
+/* ====== KNOWLEDGE FLOW ====== */
+.flow-row { display: flex; align-items: stretch; gap: 0; margin-bottom: 24px; }
+.flow-stage {
+  flex: 1; background: var(--white); border-radius: var(--radius-standard);
+  padding: 24px; text-align: center; position: relative;
+}
+.flow-stage:not(:last-child)::after {
+  content: '→'; position: absolute; right: -14px; top: 50%;
+  transform: translateY(-50%); font-size: 18px; color: var(--text-tertiary); z-index: 2;
+}
+.flow-stage-title {
+  font-family: var(--font-text); font-size: 14px; font-weight: 600;
+  letter-spacing: -0.224px; margin-bottom: 10px; color: var(--apple-blue);
+}
+.flow-stage-item {
+  font-family: var(--font-text); font-size: 14px; font-weight: 400;
+  letter-spacing: -0.224px; color: var(--text-secondary); padding: 3px 0;
+}
+
+/* ====== KNOWLEDGE MODELING ====== */
+.layer-stack { display: flex; flex-direction: column; gap: 4px; }
+.layer-stack-item {
+  background: var(--white); border-radius: var(--radius-standard);
+  padding: 20px 28px; display: flex; align-items: center; gap: 20px;
+}
+.layer-stack-num {
+  font-family: var(--font-display); font-size: 32px; font-weight: 600;
+  line-height: 1.07; letter-spacing: -0.28px;
+  color: rgba(0,0,0,0.08); min-width: 48px;
+}
+.layer-stack-title {
+  font-family: var(--font-display); font-size: 21px; font-weight: 600;
+  line-height: 1.19; letter-spacing: 0.231px;
+  color: var(--near-black); margin-bottom: 4px;
+}
+.layer-stack-desc {
+  font-family: var(--font-text); font-size: 14px; font-weight: 400;
+  line-height: 1.29; letter-spacing: -0.224px; color: var(--text-secondary);
+}
+.layer-stack-example {
+  font-family: var(--font-text); font-size: 12px; font-weight: 400;
+  line-height: 1.33; letter-spacing: -0.12px; color: var(--text-tertiary); margin-top: 4px;
+}
+
+/* ====== DECISION RECORDS ====== */
+.decision-card {
+  background: var(--white); border-radius: var(--radius-standard);
+  padding: 24px 28px; margin-bottom: 12px;
+}
+.decision-header { display: flex; align-items: baseline; gap: 12px; margin-bottom: 8px; }
+.decision-topic {
+  font-family: var(--font-display); font-size: 21px; font-weight: 600;
+  line-height: 1.19; letter-spacing: 0.231px; color: var(--near-black);
+}
+.decision-choice {
+  font-family: var(--font-text); font-size: 14px; font-weight: 600;
+  letter-spacing: -0.224px; color: var(--apple-blue);
+  padding: 2px 12px; border-radius: var(--radius-pill); background: rgba(0,113,227,0.06);
+}
+.decision-reason {
+  font-family: var(--font-text); font-size: 14px; font-weight: 400;
+  line-height: 1.29; letter-spacing: -0.224px; color: var(--text-secondary);
+}
+.decision-alt {
+  font-family: var(--font-text); font-size: 12px; font-weight: 400;
+  line-height: 1.33; letter-spacing: -0.12px; color: var(--text-tertiary);
+  margin-top: 8px; padding-top: 8px; border-top: 1px solid rgba(0,0,0,0.06);
+}
+
+/* ====== CAPABILITY CARDS ====== */
+.cap-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.cap-card {
+  background: var(--light-gray); border-radius: var(--radius-standard);
+  padding: 28px 24px;
+}
+.cap-icon { font-size: 28px; margin-bottom: 14px; }
+.cap-title {
+  font-family: var(--font-display); font-size: 21px; font-weight: 700;
+  line-height: 1.19; letter-spacing: 0.231px;
+  color: var(--near-black); margin-bottom: 8px;
+}
+.cap-desc {
+  font-family: var(--font-text); font-size: 14px; font-weight: 400;
+  line-height: 1.29; letter-spacing: -0.224px; color: var(--text-secondary);
+}
+
+/* ====== HARNESS ====== */
+.harness-row { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+.harness-item {
+  background: var(--light-gray); border-radius: var(--radius-standard);
+  padding: 24px 20px; text-align: center; min-width: 140px; flex: 1; max-width: 180px;
+}
+.harness-icon { font-size: 24px; margin-bottom: 10px; }
+.harness-name {
+  font-family: var(--font-display); font-size: 17px; font-weight: 600;
+  line-height: 1.19; letter-spacing: -0.374px;
+  color: var(--near-black); margin-bottom: 6px;
+}
+.harness-desc {
+  font-family: var(--font-text); font-size: 12px; font-weight: 400;
+  line-height: 1.33; letter-spacing: -0.12px; color: var(--text-secondary);
+}
+
+/* ====== SECURITY ====== */
+.security-row { display: flex; gap: 16px; justify-content: center; flex-wrap: wrap; }
+.security-item {
+  background: var(--light-gray); border-radius: var(--radius-standard);
+  padding: 24px 16px; text-align: center; min-width: 140px; flex: 1; max-width: 180px;
+}
+.security-icon { font-size: 28px; margin-bottom: 10px; }
+.security-name {
+  font-family: var(--font-text); font-size: 14px; font-weight: 600;
+  letter-spacing: -0.224px; color: var(--near-black); margin-bottom: 4px;
+}
+.security-desc {
+  font-family: var(--font-text); font-size: 12px; font-weight: 400;
+  line-height: 1.33; letter-spacing: -0.12px; color: var(--text-secondary);
+}
+
+/* ====== VALUE STATS ====== */
+.stats-row { display: flex; gap: 40px; justify-content: center; margin-bottom: 60px; flex-wrap: wrap; }
+.stat-item { text-align: center; }
+.stat-number {
+  font-family: var(--font-display); font-size: 56px; font-weight: 600;
+  line-height: 1.07; letter-spacing: -0.28px; color: var(--apple-blue);
+}
+.stat-label {
+  font-family: var(--font-text); font-size: 14px; font-weight: 400;
+  line-height: 1.29; letter-spacing: -0.224px; color: var(--text-secondary);
+}
+
+/* ====== BEFORE/AFTER ====== */
+.compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.compare-card { border-radius: var(--radius-standard); padding: 32px; }
+.compare-before { background: var(--light-gray); }
+.compare-after { background: var(--white); }
+.compare-label {
+  font-family: var(--font-text); font-size: 12px; font-weight: 600;
+  letter-spacing: -0.12px; margin-bottom: 16px;
+}
+.compare-before .compare-label { color: var(--text-tertiary); }
+.compare-after .compare-label { color: var(--apple-blue); }
+.compare-item {
+  font-family: var(--font-text); font-size: 14px; font-weight: 400;
+  line-height: 1.29; letter-spacing: -0.224px;
+  color: var(--text-secondary); padding: 6px 0;
+  display: flex; align-items: flex-start; gap: 10px;
+}
+.compare-item svg { width: 16px; height: 16px; flex-shrink: 0; margin-top: 2px; }
+
+/* ====== VALUE DIMENSIONS ====== */
+.value-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.value-card {
+  background: var(--light-gray); border-radius: var(--radius-standard);
+  padding: 28px 24px;
+}
+.value-icon { font-size: 28px; margin-bottom: 14px; }
+.value-title {
+  font-family: var(--font-display); font-size: 21px; font-weight: 700;
+  line-height: 1.19; letter-spacing: 0.231px;
+  color: var(--near-black); margin-bottom: 8px;
+}
+.value-desc {
+  font-family: var(--font-text); font-size: 14px; font-weight: 400;
+  line-height: 1.29; letter-spacing: -0.224px; color: var(--text-secondary);
+}
+
+/* ====== TIMELINE ====== */
+.timeline { position: relative; padding: 0 0 0 48px; }
+.timeline::before {
+  content: ''; position: absolute; left: 15px; top: 0; bottom: 0;
+  width: 2px; background: var(--apple-blue); border-radius: 1px;
+}
+.timeline-item { position: relative; margin-bottom: 48px; }
+.timeline-item:last-child { margin-bottom: 0; }
+.timeline-dot {
+  position: absolute; left: -41px; top: 6px;
+  width: 12px; height: 12px; border-radius: var(--radius-circle);
+  border: 2px solid var(--apple-blue); background: var(--white);
+}
+.timeline-date {
+  font-family: var(--font-text); font-size: 14px; font-weight: 600;
+  letter-spacing: -0.224px; color: var(--apple-blue); margin-bottom: 6px;
+}
+.timeline-title {
+  font-family: var(--font-display); font-size: 28px; font-weight: 400;
+  line-height: 1.14; letter-spacing: 0.196px;
+  color: var(--near-black); margin-bottom: 8px;
+}
+.timeline-desc {
+  font-family: var(--font-text); font-size: 14px; font-weight: 400;
+  line-height: 1.29; letter-spacing: -0.224px; color: var(--text-secondary);
+}
+.timeline-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+.timeline-chip {
+  font-family: var(--font-text); font-size: 12px; font-weight: 400;
+  letter-spacing: -0.12px;
+  padding: 3px 10px; border-radius: var(--radius-pill);
+  background: var(--light-gray); color: var(--text-secondary);
+}
+
+/* ====== TEAM ====== */
+.team-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.team-card {
+  background: var(--light-gray); border-radius: var(--radius-standard);
+  padding: 24px; text-align: center;
+}
+.team-icon { font-size: 28px; margin-bottom: 10px; }
+.team-name {
+  font-family: var(--font-display); font-size: 17px; font-weight: 600;
+  line-height: 1.19; letter-spacing: -0.374px;
+  color: var(--near-black); margin-bottom: 4px;
+}
+.team-desc {
+  font-family: var(--font-text); font-size: 12px; font-weight: 400;
+  line-height: 1.33; letter-spacing: -0.12px; color: var(--text-secondary);
+}
+.team-count {
+  font-family: var(--font-text); font-size: 12px; font-weight: 600;
+  letter-spacing: -0.12px; color: var(--apple-blue); margin-top: 8px;
+}
+
+/* ====== RISK ====== */
+.risk-list { max-width: 720px; margin: 0 auto; }
+.risk-item {
+  background: var(--white); border-radius: var(--radius-standard);
+  padding: 20px 24px; margin-bottom: 10px;
+}
+.risk-header { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+.risk-name {
+  font-family: var(--font-display); font-size: 17px; font-weight: 600;
+  line-height: 1.19; letter-spacing: -0.374px; color: var(--near-black);
+}
+.risk-badge {
+  font-family: var(--font-text); font-size: 12px; font-weight: 600;
+  letter-spacing: -0.12px; padding: 2px 10px; border-radius: var(--radius-pill);
+}
+.risk-high { background: rgba(255,59,48,0.08); color: #ff3b30; }
+.risk-mid { background: rgba(255,149,0,0.08); color: #cc7700; }
+.risk-low { background: rgba(52,199,89,0.08); color: #1a8a3e; }
+.risk-solution {
+  font-family: var(--font-text); font-size: 14px; font-weight: 400;
+  line-height: 1.29; letter-spacing: -0.224px; color: var(--text-secondary);
+}
+
+/* ====== ECOSYSTEM ====== */
+.eco-center {
+  background: var(--apple-blue); border-radius: var(--radius-standard);
+  padding: 40px; text-align: center; margin-bottom: 24px;
+}
+.eco-center-title {
+  font-family: var(--font-display); font-size: 28px; font-weight: 600;
+  line-height: 1.14; letter-spacing: 0.196px;
+  color: var(--white); margin-bottom: 8px;
+}
+.eco-center-desc {
+  font-family: var(--font-text); font-size: 14px; font-weight: 400;
+  line-height: 1.29; letter-spacing: -0.224px; color: rgba(255,255,255,0.8);
+}
+.eco-branches { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.eco-branch {
+  background: var(--white); border-radius: var(--radius-standard);
+  padding: 24px; text-align: center;
+}
+.eco-branch-icon { font-size: 28px; margin-bottom: 10px; }
+.eco-branch-title {
+  font-family: var(--font-display); font-size: 17px; font-weight: 600;
+  line-height: 1.19; letter-spacing: -0.374px;
+  color: var(--near-black); margin-bottom: 6px;
+}
+.eco-branch-desc {
+  font-family: var(--font-text); font-size: 12px; font-weight: 400;
+  line-height: 1.33; letter-spacing: -0.12px; color: var(--text-secondary);
+}
+.eco-branch-chips { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 10px; }
+.eco-branch-chip {
+  font-family: var(--font-text); font-size: 11px; font-weight: 400;
+  letter-spacing: normal; padding: 2px 8px; border-radius: var(--radius-pill);
+  background: var(--light-gray); color: var(--text-secondary);
+}
+
+/* ====== FOOTER ====== */
+.footer {
+  background: var(--light-gray); padding: 48px 22px; text-align: center;
+}
+.footer-text {
+  font-family: var(--font-text); font-size: 12px; font-weight: 400;
+  line-height: 1.33; letter-spacing: -0.12px; color: var(--text-tertiary);
+}
+
+/* ====== RESPONSIVE ====== */
+@media (max-width: 834px) {
+  .hero-title, .section-title { font-size: 40px; line-height: 1.10; letter-spacing: normal; }
+  .pain-grid, .goals-grid, .cap-grid, .value-grid, .team-grid { grid-template-columns: 1fr; }
+  .compare-grid { grid-template-columns: 1fr; }
+  .flow-row { flex-direction: column; }
+  .flow-stage:not(:last-child)::after {
+    content: '↓'; right: 50%; top: auto; bottom: -14px; transform: translateX(50%);
+  }
+  .stats-row { gap: 24px; }
+  .stat-number { font-size: 40px; }
+  .section-white, .section-gray { padding: 80px 22px; }
+  .eco-branches { grid-template-columns: 1fr; }
+  .security-row, .harness-row { flex-wrap: wrap; }
+  .security-item, .harness-item { max-width: 100%; }
+}
+@media (max-width: 480px) {
+  .hero-title, .section-title { font-size: 28px; line-height: 1.14; letter-spacing: 0.196px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ====== NAV ====== -->
+<nav class="nav">
+  <div class="nav-inner">
+    <div class="nav-brand">AI 知识中台</div>
+    <div class="nav-links">
+      <a href="#why">为什么做</a>
+      <a href="#arch">整体架构</a>
+      <a href="#capability">核心能力</a>
+      <a href="#value">价值收益</a>
+      <a href="#roadmap">落地路径</a>
+      <a href="#risk">风险管控</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ====== HERO — Light ====== -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="hero-eyebrow">Enterprise AI Knowledge Platform</div>
+    <h1 class="hero-title">让知识<span class="gradient">流动</span>，<br>让 AI<span class="gradient">落地</span></h1>
+    <p class="hero-sub">从知识孤岛到智能中台。打通业务系统知识壁垒，构建 AI 原生的企业知识基础设施。</p>
+    <div class="hero-ctas">
+      <a href="#why" class="btn-primary">了解全景架构</a>
+      <a href="#arch" class="btn-pill">查看架构图</a>
+    </div>
+  </div>
+</section>
+
+<!-- ====== 01 为什么做 — White ====== -->
+<section class="section-white" id="why">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-number">01</div>
+      <h2 class="section-title">为什么要做</h2>
+      <p class="section-desc">知识散落在各系统，AI 能力各自为战。不是技术问题，是架构问题。</p>
+    </div>
+
+    <div class="pain-grid">
+      <div class="pain-item">
+        <div class="pain-label" style="color:#ff3b30">痛点一</div>
+        <div class="pain-title">知识不可查</div>
+        <div class="pain-desc">同一个工艺参数，MES 里的和 Wiki 里的对不上，找不到权威来源。工程师查一个问题要翻 3 个系统、5 份文档。</div>
+      </div>
+      <div class="pain-item">
+        <div class="pain-label" style="color:#ff9500">痛点二</div>
+        <div class="pain-title">知识不可联</div>
+        <div class="pain-desc">设备故障 → 维修方案 → 备件库存，这些知识散落在不同系统，无法串联推理，全靠老师傅经验。</div>
+      </div>
+      <div class="pain-item">
+        <div class="pain-label" style="color:#af52de">痛点三</div>
+        <div class="pain-title">AI 能力碎片化</div>
+        <div class="pain-desc">每个系统单独接大模型，Prompt 和工具无法复用，重复造轮子。模型 API 分散采购，成本不可控。</div>
+      </div>
+      <div class="pain-item">
+        <div class="pain-label" style="color:var(--apple-blue)">痛点四</div>
+        <div class="pain-title">效率短板</div>
+        <div class="pain-desc">工程师查一个工艺问题耗时 30 分钟起步。异常分析报告人工汇总 2 小时。AI 投入分散，ROI 难以衡量。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== 01b 建设目标 + 原则 — Gray ====== -->
+<section class="section-gray">
+  <div class="section-inner">
+    <div class="section-header">
+      <h2 class="section-title" style="font-size:40px">建设目标</h2>
+    </div>
+    <div class="goals-grid">
+      <div class="goal-card">
+        <div class="goal-tag">短期 · 5/30</div>
+        <div class="goal-title">MVP 验证</div>
+        <div class="goal-desc">MES 单场景跑通，验证知识中台核心链路：知识采集 → RAG 检索 → MCP 工具调用</div>
+      </div>
+      <div class="goal-card">
+        <div class="goal-tag">中期 · 8/30</div>
+        <div class="goal-title">多场景 + 图谱</div>
+        <div class="goal-desc">MES 多场景覆盖 + Skill 体系成型 + GraphRAG 知识图谱 V0.5 + 跨系统扩展</div>
+      </div>
+      <div class="goal-card">
+        <div class="goal-tag">长期 · 10/30</div>
+        <div class="goal-title">Agent 化 + 推广</div>
+        <div class="goal-desc">知识图谱 V1 + A2A Agent 协作 + 全集团推广，从"查数据"到"给建议"</div>
+      </div>
+    </div>
+
+    <div style="margin-top:80px">
+      <h3 style="text-align:center; margin-bottom:40px; font-family:var(--font-display); font-size:28px; font-weight:400; line-height:1.14; letter-spacing:0.196px; color:var(--near-black)">设计原则</h3>
+      <div class="principles-row">
+        <div class="principle-item">
+          <div class="principle-icon">🔄</div>
+          <div class="principle-name">知识即服务</div>
+          <div class="principle-desc">AI 主动推送，按需检索</div>
+        </div>
+        <div class="principle-item">
+          <div class="principle-icon">🧬</div>
+          <div class="principle-name">AI 原生</div>
+          <div class="principle-desc">架构层面为 AI 设计</div>
+        </div>
+        <div class="principle-item">
+          <div class="principle-icon">📈</div>
+          <div class="principle-name">渐进式建设</div>
+          <div class="principle-desc">单场景切入，验证后扩展</div>
+        </div>
+        <div class="principle-item">
+          <div class="principle-icon">📐</div>
+          <div class="principle-name">标准化优先</div>
+          <div class="principle-desc">MCP + A2A，不造私有轮子</div>
+        </div>
+        <div class="principle-item">
+          <div class="principle-icon">📊</div>
+          <div class="principle-name">可观测可评测</div>
+          <div class="principle-desc">每个环节有指标，不做黑盒</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== 02 整体架构 — White ====== -->
+<section class="section-white" id="arch">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-number">02</div>
+      <h2 class="section-title">整体架构</h2>
+      <p class="section-desc">五层架构，覆盖制造业全流程系统。每一层职责清晰、可独立演进。</p>
+    </div>
+
+    <!-- SVG Architecture Diagram -->
+    <div class="arch-diagram-wrap">
+      <svg viewBox="0 0 960 820" xmlns="http://www.w3.org/2000/svg" style="font-family:'SF Pro Display','PingFang SC','Microsoft YaHei',sans-serif">
+        <defs>
+          <filter id="softShadow" x="-4%" y="-4%" width="108%" height="116%">
+            <feDropShadow dx="0" dy="2" stdDeviation="6" flood-color="rgba(0,0,0,0.06)"/>
+          </filter>
+        </defs>
+
+        <!-- ===== Layer 1: Access ===== -->
+        <rect x="20" y="16" width="920" height="96" rx="8" fill="#f5f5f7"/>
+        <text x="40" y="42" font-size="11" font-weight="600" fill="#0071e3" letter-spacing="0.5">接入层 · ACCESS</text>
+        <!-- Access items -->
+        <rect x="40" y="54" width="120" height="40" rx="5" fill="white" filter="url(#softShadow)"/>
+        <text x="100" y="79" font-size="13" fill="#1d1d1f" text-anchor="middle">钉钉机器人</text>
+        <rect x="172" y="54" width="120" height="40" rx="5" fill="white" filter="url(#softShadow)"/>
+        <text x="232" y="79" font-size="13" fill="#1d1d1f" text-anchor="middle">Web 控制台</text>
+        <rect x="304" y="54" width="120" height="40" rx="5" fill="white" filter="url(#softShadow)"/>
+        <text x="364" y="79" font-size="13" fill="#1d1d1f" text-anchor="middle">API 网关</text>
+        <rect x="436" y="54" width="120" height="40" rx="5" fill="white" filter="url(#softShadow)"/>
+        <text x="496" y="79" font-size="13" fill="#1d1d1f" text-anchor="middle">移动</text>
+        <rect x="568" y="54" width="120" height="40" rx="5" fill="white" filter="url(#softShadow)"/>
+        <text x="628" y="79" font-size="13" fill="#1d1d1f" text-anchor="middle">业务系统</text>
+        <rect x="700" y="54" width="120" height="40" rx="5" fill="white" filter="url(#softShadow)"/>
+        <text x="760" y="79" font-size="13" fill="#1d1d1f" text-anchor="middle">其他</text>
+
+        <!-- Arrow -->
+        <text x="480" y="128" font-size="14" fill="rgba(0,0,0,0.28)" text-anchor="middle">▼</text>
+
+        <!-- ===== Layer 2: Skills ===== -->
+        <rect x="20" y="136" width="920" height="96" rx="8" fill="#f5f5f7"/>
+        <text x="40" y="162" font-size="11" font-weight="600" fill="#0077cc" letter-spacing="0.5">应用层 · SKILLS</text>
+        <rect x="40" y="174" width="130" height="40" rx="5" fill="white" filter="url(#softShadow)"/>
+        <text x="105" y="199" font-size="13" fill="#1d1d1f" text-anchor="middle">MES 知识查询</text>
+        <rect x="182" y="174" width="130" height="40" rx="5" fill="white" filter="url(#softShadow)"/>
+        <text x="247" y="199" font-size="13" fill="#1d1d1f" text-anchor="middle">设备诊断 Agent</text>
+        <rect x="324" y="174" width="130" height="40" rx="5" fill="white" filter="url(#softShadow)"/>
+        <text x="389" y="199" font-size="13" fill="#1d1d1f" text-anchor="middle">工艺优化 Agent</text>
+        <rect x="466" y="174" width="130" height="40" rx="5" fill="white" filter="url(#softShadow)"/>
+        <text x="531" y="199" font-size="13" fill="#1d1d1f" text-anchor="middle">智能报表 Agent</text>
+        <rect x="608" y="174" width="130" height="40" rx="5" fill="white" filter="url(#softShadow)"/>
+        <text x="673" y="199" font-size="13" fill="#1d1d1f" text-anchor="middle">供应链预警</text>
+        <rect x="750" y="174" width="130" height="40" rx="5" fill="white" filter="url(#softShadow)"/>
+        <text x="815" y="199" font-size="13" fill="#1d1d1f" text-anchor="middle">…更多 Skill</text>
+
+        <!-- Arrow -->
+        <text x="480" y="248" font-size="14" fill="rgba(0,0,0,0.28)" text-anchor="middle">▼</text>
+
+        <!-- ===== Layer 3: Core Platform ===== -->
+        <rect x="20" y="256" width="920" height="140" rx="8" fill="#f5f5f7"/>
+        <text x="40" y="282" font-size="11" font-weight="600" fill="#0071e3" letter-spacing="0.5">中台能力层 · CORE PLATFORM</text>
+        <!-- Row 1: Agent Harness -->
+        <rect x="40" y="294" width="880" height="36" rx="5" fill="rgba(0,113,227,0.06)"/>
+        <text x="60" y="317" font-size="12" font-weight="600" fill="#0071e3">Agent Harness 运行时</text>
+        <text x="230" y="317" font-size="12" fill="#005bb5">任务调度</text>
+        <text x="330" y="317" font-size="12" fill="#005bb5">沙箱执行</text>
+        <text x="430" y="317" font-size="12" fill="#005bb5">反馈闭环</text>
+        <text x="530" y="317" font-size="12" fill="#005bb5">重试/降级</text>
+        <text x="630" y="317" font-size="12" fill="#005bb5">评测体系</text>
+        <text x="730" y="317" font-size="12" fill="#005bb5">预算控制</text>
+        <!-- Row 2: Knowledge & Tools -->
+        <rect x="40" y="338" width="880" height="36" rx="5" fill="rgba(0,113,227,0.04)"/>
+        <text x="60" y="361" font-size="12" font-weight="600" fill="#006699">MCP 工具生态</text>
+        <text x="200" y="361" font-size="12" fill="#005588">GraphRAG 知识图谱</text>
+        <text x="370" y="361" font-size="12" fill="#005588">A2A Agent 互联</text>
+        <text x="530" y="361" font-size="12" fill="#005588">Function Calling</text>
+        <text x="700" y="361" font-size="12" fill="#005588">混合检索</text>
+
+        <!-- Arrow -->
+        <text x="480" y="412" font-size="14" fill="rgba(0,0,0,0.28)" text-anchor="middle">▼</text>
+
+        <!-- ===== Layer 4: Business Systems — THE KEY ADDITION ===== -->
+        <rect x="20" y="420" width="920" height="140" rx="8" fill="#f5f5f7"/>
+        <text x="40" y="446" font-size="11" font-weight="600" fill="#0071e3" letter-spacing="0.5">业务系统层 · BUSINESS SYSTEMS</text>
+        <!-- Row 1: Core manufacturing -->
+        <rect x="40" y="458" width="100" height="40" rx="5" fill="#0071e3" filter="url(#softShadow)"/>
+        <text x="90" y="483" font-size="13" font-weight="600" fill="white" text-anchor="middle">MES</text>
+        <rect x="152" y="458" width="100" height="40" rx="5" fill="#0071e3" filter="url(#softShadow)"/>
+        <text x="202" y="483" font-size="13" font-weight="600" fill="white" text-anchor="middle">ERP</text>
+        <rect x="264" y="458" width="100" height="40" rx="5" fill="#0071e3" filter="url(#softShadow)"/>
+        <text x="314" y="483" font-size="13" font-weight="600" fill="white" text-anchor="middle">CRM</text>
+        <rect x="376" y="458" width="100" height="40" rx="5" fill="#2997ff" filter="url(#softShadow)"/>
+        <text x="426" y="483" font-size="13" font-weight="600" fill="white" text-anchor="middle">WMS</text>
+        <rect x="488" y="458" width="100" height="40" rx="5" fill="#2997ff" filter="url(#softShadow)"/>
+        <text x="538" y="483" font-size="13" font-weight="600" fill="white" text-anchor="middle">QMS</text>
+        <rect x="600" y="458" width="100" height="40" rx="5" fill="#2997ff" filter="url(#softShadow)"/>
+        <text x="650" y="483" font-size="13" font-weight="600" fill="white" text-anchor="middle">SCM</text>
+        <rect x="712" y="458" width="100" height="40" rx="5" fill="#2997ff" filter="url(#softShadow)"/>
+        <text x="762" y="483" font-size="13" font-weight="600" fill="white" text-anchor="middle">PLM</text>
+        <rect x="824" y="458" width="96" height="40" rx="5" fill="#2997ff" filter="url(#softShadow)"/>
+        <text x="872" y="483" font-size="13" font-weight="600" fill="white" text-anchor="middle">EAM</text>
+        <!-- Row 2: Sub-labels -->
+        <text x="90" y="510" font-size="10" fill="rgba(0,0,0,0.48)" text-anchor="middle">制造执行</text>
+        <text x="202" y="510" font-size="10" fill="rgba(0,0,0,0.48)" text-anchor="middle">企业资源</text>
+        <text x="314" y="510" font-size="10" fill="rgba(0,0,0,0.48)" text-anchor="middle">客户关系</text>
+        <text x="426" y="510" font-size="10" fill="rgba(0,0,0,0.48)" text-anchor="middle">仓储管理</text>
+        <text x="538" y="510" font-size="10" fill="rgba(0,0,0,0.48)" text-anchor="middle">质量管理</text>
+        <text x="650" y="510" font-size="10" fill="rgba(0,0,0,0.48)" text-anchor="middle">供应链</text>
+        <text x="762" y="510" font-size="10" fill="rgba(0,0,0,0.48)" text-anchor="middle">产品生命周期</text>
+        <text x="872" y="510" font-size="10" fill="rgba(0,0,0,0.48)" text-anchor="middle">设备资产</text>
+
+        <!-- Arrow -->
+        <text x="480" y="576" font-size="14" fill="rgba(0,0,0,0.28)" text-anchor="middle">▼</text>
+
+        <!-- ===== Layer 5: Data ===== -->
+        <rect x="20" y="584" width="920" height="96" rx="8" fill="#f5f5f7"/>
+        <text x="40" y="610" font-size="11" font-weight="600" fill="#006699" letter-spacing="0.5">数据层 · DATA</text>
+        <rect x="40" y="622" width="130" height="40" rx="5" fill="white" filter="url(#softShadow)"/>
+        <text x="105" y="647" font-size="13" fill="#1d1d1f" text-anchor="middle">向量数据库</text>
+        <rect x="182" y="622" width="130" height="40" rx="5" fill="white" filter="url(#softShadow)"/>
+        <text x="247" y="647" font-size="13" fill="#1d1d1f" text-anchor="middle">图数据库</text>
+        <rect x="324" y="622" width="130" height="40" rx="5" fill="white" filter="url(#softShadow)"/>
+        <text x="389" y="647" font-size="13" fill="#1d1d1f" text-anchor="middle">关系数据库</text>
+        <rect x="466" y="622" width="130" height="40" rx="5" fill="white" filter="url(#softShadow)"/>
+        <text x="531" y="647" font-size="13" fill="#1d1d1f" text-anchor="middle">对象存储</text>
+        <!-- ETL -->
+        <rect x="620" y="622" width="300" height="40" rx="5" fill="rgba(0,113,227,0.04)"/>
+        <text x="640" y="647" font-size="12" font-weight="600" fill="#006699">知识采集 & ETL</text>
+        <text x="780" y="647" font-size="12" fill="#005588">文档解析 · 抽取 · 融合 · 增量</text>
+
+        <!-- Arrow -->
+        <text x="480" y="696" font-size="14" fill="rgba(0,0,0,0.28)" text-anchor="middle">▼</text>
+
+        <!-- ===== Layer 6: Models ===== -->
+        <rect x="20" y="704" width="920" height="96" rx="8" fill="#f5f5f7"/>
+        <text x="40" y="730" font-size="11" font-weight="600" fill="#005588" letter-spacing="0.5">AI 模型层 · MODELS</text>
+        <rect x="40" y="742" width="130" height="40" rx="5" fill="white" filter="url(#softShadow)"/>
+        <text x="105" y="767" font-size="13" fill="#1d1d1f" text-anchor="middle">通用大模型</text>
+        <rect x="182" y="742" width="130" height="40" rx="5" fill="white" filter="url(#softShadow)"/>
+        <text x="247" y="767" font-size="13" fill="#1d1d1f" text-anchor="middle">代码模型</text>
+        <rect x="324" y="742" width="130" height="40" rx="5" fill="white" filter="url(#softShadow)"/>
+        <text x="389" y="767" font-size="13" fill="#1d1d1f" text-anchor="middle">Embedding</text>
+        <rect x="466" y="742" width="130" height="40" rx="5" fill="white" filter="url(#softShadow)"/>
+        <text x="531" y="767" font-size="13" fill="#1d1d1f" text-anchor="middle">小模型</text>
+        <!-- Gate Router -->
+        <rect x="620" y="742" width="300" height="40" rx="5" fill="rgba(0,113,227,0.04)"/>
+        <text x="640" y="767" font-size="12" font-weight="600" fill="#005588">多模型路由 Gate Router</text>
+        <text x="840" y="767" font-size="11" fill="#004477">意图→路由→选模型</text>
+      </svg>
+    </div>
+
+    <!-- Key Insight -->
+    <div style="margin-top:48px; background:var(--light-gray); border-radius:var(--radius-standard); padding:32px 40px; text-align:center;">
+      <div style="font-family:var(--font-text); font-size:12px; font-weight:600; letter-spacing:-0.12px; color:var(--apple-blue); margin-bottom:8px;">关键认知</div>
+      <div style="font-family:var(--font-display); font-size:21px; font-weight:400; line-height:1.19; letter-spacing:0.231px; color:var(--near-black);">
+        <!-- MCP 不是 Function Calling 的替代，而是上层标准化。 -->
+      </div>
+      <div style="font-family:var(--font-text); font-size:14px; font-weight:400; line-height:1.29; letter-spacing:-0.224px; color:var(--text-secondary); margin-top:6px;">
+        路径： MCP（标准化协议）→ A2A（Agent 互联）
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== 02b 知识建模 + 生态 — Gray ====== -->
+<section class="section-gray">
+  <div class="section-inner">
+    <div class="section-header">
+      <h2 class="section-title" style="font-size:40px">知识建模层次</h2>
+      <p class="section-desc">从事实到推理，四层知识建模体系。</p>
+    </div>
+
+    <div class="layer-stack">
+      <div class="layer-stack-item">
+        <div class="layer-stack-num">L4</div>
+        <div>
+          <div class="layer-stack-title">推理层</div>
+          <div class="layer-stack-desc">因果关系、关联推理</div>
+          <div class="layer-stack-example">"冷却水阀故障 → 温度异常 → 产品缺陷"</div>
+        </div>
+      </div>
+      <div class="layer-stack-item">
+        <div class="layer-stack-num">L3</div>
+        <div>
+          <div class="layer-stack-title">经验层</div>
+          <div class="layer-stack-desc">故障案例、处理方案、专家经验</div>
+          <div class="layer-stack-example">"A 线温度异常通常是冷却水阀故障"</div>
+        </div>
+      </div>
+      <div class="layer-stack-item">
+        <div class="layer-stack-num">L2</div>
+        <div>
+          <div class="layer-stack-title">规则层</div>
+          <div class="layer-stack-desc">工艺约束、安全规则、操作规程</div>
+          <div class="layer-stack-example">"温度超 85°C 触发告警"</div>
+        </div>
+      </div>
+      <div class="layer-stack-item">
+        <div class="layer-stack-num">L1</div>
+        <div>
+          <div class="layer-stack-title">事实层</div>
+          <div class="layer-stack-desc">设备参数、工艺指标、操作记录</div>
+          <div class="layer-stack-example">"A 线温度上限 85°C"</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Knowledge Flow -->
+    <div style="margin-top:80px">
+      <div class="section-header" style="margin-bottom:40px">
+        <h2 class="section-title" style="font-size:40px">知识全景流水线</h2>
+      </div>
+      <div class="flow-row">
+        <div class="flow-stage">
+          <div class="flow-stage-title">知识采集</div>
+          <div class="flow-stage-item">文档解析</div>
+          <div class="flow-stage-item">数据库同步</div>
+          <div class="flow-stage-item">API 对接</div>
+          <div class="flow-stage-item">人工录入</div>
+        </div>
+        <div class="flow-stage">
+          <div class="flow-stage-title">知识加工</div>
+          <div class="flow-stage-item">实体抽取</div>
+          <div class="flow-stage-item">关系抽取</div>
+          <div class="flow-stage-item">知识融合</div>
+          <div class="flow-stage-item">质量校验</div>
+        </div>
+        <div class="flow-stage">
+          <div class="flow-stage-title">知识存储</div>
+          <div class="flow-stage-item">向量存储</div>
+          <div class="flow-stage-item">图存储</div>
+          <div class="flow-stage-item">结构化存储</div>
+          <div class="flow-stage-item">版本管理</div>
+        </div>
+        <div class="flow-stage">
+          <div class="flow-stage-title">知识服务</div>
+          <div class="flow-stage-item">语义检索</div>
+          <div class="flow-stage-item">图谱推理</div>
+          <div class="flow-stage-item">知识问答</div>
+          <div class="flow-stage-item">Agent 调用</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Ecosystem -->
+    <div style="margin-top:80px">
+      <div class="section-header" style="margin-bottom:40px">
+        <h2 class="section-title" style="font-size:40px">集成与生态</h2>
+      </div>
+      <div class="eco-center">
+        <div class="eco-center-title">AI 知识中台</div>
+        <div class="eco-center-desc">统一知识服务 · 标准化工具接入 · Agent 协作</div>
+      </div>
+      <div class="eco-branches">
+        <div class="eco-branch">
+          <div class="eco-branch-icon">🔧</div>
+          <div class="eco-branch-title">MCP 工具生态</div>
+          <div class="eco-branch-desc">标准化工具接入，即插即用</div>
+          <div class="eco-branch-chips">
+            <span class="eco-branch-chip">MES 工具</span>
+            <span class="eco-branch-chip">ERP 工具</span>
+            <span class="eco-branch-chip">OA 工具</span>
+          </div>
+        </div>
+        <div class="eco-branch">
+          <div class="eco-branch-icon">🤖</div>
+          <div class="eco-branch-title">A2A Agent 生态</div>
+          <div class="eco-branch-desc">Agent 互联，独立演进</div>
+          <div class="eco-branch-chips">
+            <span class="eco-branch-chip">自建 Agent</span>
+            <span class="eco-branch-chip">三方 Agent</span>
+          </div>
+        </div>
+        <div class="eco-branch">
+          <div class="eco-branch-icon">🔄</div>
+          <div class="eco-branch-title">数据管道生态</div>
+          <div class="eco-branch-desc">知识采集、融合、更新</div>
+          <div class="eco-branch-chips">
+            <span class="eco-branch-chip">文档解析</span>
+            <span class="eco-branch-chip">ETL 管道</span>
+            <span class="eco-branch-chip">增量同步</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== 02c 技术选型 — White ====== -->
+<section class="section-white">
+  <div class="section-inner">
+    <div class="section-header">
+      <h2 class="section-title" style="font-size:40px">技术选型决策</h2>
+    </div>
+    <div class="decision-card">
+      <div class="decision-header">
+        <span class="decision-topic">工具接入协议</span>
+        <span class="decision-choice">MCP</span>
+      </div>
+      <div class="decision-reason">Function Calling 的上层标准化，解决工具发现/注册/鉴权/跨模型复用</div>
+      <div class="decision-alt">备选：原生 Function Calling（无标准化，不可复用）</div>
+    </div>
+    <div class="decision-card">
+      <div class="decision-header">
+        <span class="decision-topic">知识检索方案</span>
+        <span class="decision-choice">GraphRAG</span>
+      </div>
+      <div class="decision-reason">结合图结构推理 + 向量检索，比纯向量 RAG 召回率和推理深度更好</div>
+      <div class="decision-alt">备选：纯向量 RAG（无法做关联推理）</div>
+    </div>
+    <div class="decision-card">
+      <div class="decision-header">
+        <span class="decision-topic">Agent 互联协议</span>
+        <span class="decision-choice">A2A</span>
+      </div>
+      <div class="decision-reason">Google 推出的 Agent-to-Agent 标准协议，解决多 Agent 协作</div>
+      <div class="decision-alt">备选：自定义协议（维护成本高）</div>
+    </div>
+    <div class="decision-card">
+      <div class="decision-header">
+        <span class="decision-topic">Agent 运行时</span>
+        <span class="decision-choice">Harness 模式</span>
+      </div>
+      <div class="decision-reason">沙箱隔离 + 反馈闭环 + 重试降级，生产级可靠性</div>
+      <div class="decision-alt">备选：裸 Agent（不可控）</div>
+    </div>
+    <div class="decision-card">
+      <div class="decision-header">
+        <span class="decision-topic">图数据库 / 向量数据库 / Embedding</span>
+        <span class="decision-choice">待评估</span>
+      </div>
+      <div class="decision-reason">需评估：查询性能、社区生态、国产化要求、运维成本。方案与存储引擎解耦，可替换</div>
+      <div class="decision-alt">Neo4j / NebulaGraph / TuGraph · Milvus / Weaviate / Qdrant · bge-m3 / text-embedding-v3</div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== 03 核心能力 — Gray ====== -->
+<section class="section-gray" id="capability">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-number">03</div>
+      <h2 class="section-title">核心能力</h2>
+      <p class="section-desc">不只是对话式问答，而是执行式 AI。能查、能联、能用、能推理。</p>
+    </div>
+
+    <div class="cap-grid">
+      <div class="cap-card" style="background:var(--white)">
+        <div class="cap-icon">🔍</div>
+        <div class="cap-title">MES 知识查询</div>
+        <div class="cap-desc">自然语言查工艺参数、设备状态、生产记录。GraphRAG 关联推理，不是关键词匹配。</div>
+      </div>
+      <div class="cap-card" style="background:var(--white)">
+        <div class="cap-icon">🔧</div>
+        <div class="cap-title">MCP 工具调用</div>
+        <div class="cap-desc">标准化协议操作业务系统——查询、修改、提交。工具即插即用，跨模型复用。</div>
+      </div>
+      <div class="cap-card" style="background:var(--white)">
+        <div class="cap-icon">🧠</div>
+        <div class="cap-title">知识图谱推理</div>
+        <div class="cap-desc">故障根因分析、工艺参数关联、异常溯源。图结构推理，比纯文本检索深一层。</div>
+      </div>
+      <div class="cap-card" style="background:var(--white)">
+        <div class="cap-icon">🤝</div>
+        <div class="cap-title">Agent 协作</div>
+        <div class="cap-desc">多 Agent 分工完成复杂任务：查数据 → 分析 → 生成报告。A2A 标准协议。</div>
+      </div>
+      <div class="cap-card" style="background:var(--white)">
+        <div class="cap-icon">📊</div>
+        <div class="cap-title">智能报表</div>
+        <div class="cap-desc">对话式生成生产报告、异常分析、趋势预测。自然语言 → 结构化数据 → 图表。</div>
+      </div>
+      <div class="cap-card" style="background:var(--white)">
+        <div class="cap-icon">📚</div>
+        <div class="cap-title">知识管理</div>
+        <div class="cap-desc">知识录入、更新、审核、版本管理。知识生命周期管理，不是存了就不管。</div>
+      </div>
+    </div>
+
+    <!-- Harness -->
+    <div style="margin-top:64px">
+      <h3 style="text-align:center; margin-bottom:40px; font-family:var(--font-display); font-size:40px; font-weight:600; line-height:1.10; color:var(--near-black)">Agent 工程能力 · Harness</h3>
+      <div class="harness-row">
+        <div class="harness-item" style="background:var(--white)">
+          <div class="harness-icon">📦</div>
+          <div class="harness-name">沙箱执行</div>
+          <div class="harness-desc">隔离环境，限制 CPU/内存/网络</div>
+        </div>
+        <div class="harness-item" style="background:var(--white)">
+          <div class="harness-icon">🔁</div>
+          <div class="harness-name">反馈闭环</div>
+          <div class="harness-desc">失败 → 错误喂回 → 修正 → 重试</div>
+        </div>
+        <div class="harness-item" style="background:var(--white)">
+          <div class="harness-icon">🛡️</div>
+          <div class="harness-name">重试/降级</div>
+          <div class="harness-desc">最多 N 次重试，超时降级简化方案</div>
+        </div>
+        <div class="harness-item" style="background:var(--white)">
+          <div class="harness-icon">💰</div>
+          <div class="harness-name">预算控制</div>
+          <div class="harness-desc">单次任务 token 费用上限</div>
+        </div>
+        <div class="harness-item" style="background:var(--white)">
+          <div class="harness-icon">📋</div>
+          <div class="harness-name">评测体系</div>
+          <div class="harness-desc">Golden Dataset + 线上反馈</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Security -->
+    <div style="margin-top:64px">
+      <h3 style="text-align:center; margin-bottom:40px; font-family:var(--font-display); font-size:40px; font-weight:600; line-height:1.10; color:var(--near-black)">安全 & 权限保障</h3>
+      <div class="security-row">
+        <div class="security-item" style="background:var(--white)">
+          <div class="security-icon">🛡️</div>
+          <div class="security-name">输入安全</div>
+          <div class="security-desc">Prompt 注入防护<br>工具参数校验</div>
+        </div>
+        <div class="security-item" style="background:var(--white)">
+          <div class="security-icon">🔒</div>
+          <div class="security-name">执行安全</div>
+          <div class="security-desc">沙箱隔离<br>高危操作人工审批</div>
+        </div>
+        <div class="security-item" style="background:var(--white)">
+          <div class="security-icon">🔐</div>
+          <div class="security-name">数据安全</div>
+          <div class="security-desc">业务域隔离<br>敏感信息脱敏</div>
+        </div>
+        <div class="security-item" style="background:var(--white)">
+          <div class="security-icon">👤</div>
+          <div class="security-name">权限控制</div>
+          <div class="security-desc">角色控制工具调用<br>知识访问范围</div>
+        </div>
+        <div class="security-item" style="background:var(--white)">
+          <div class="security-icon">📝</div>
+          <div class="security-name">审计日志</div>
+          <div class="security-desc">所有操作留痕<br>可追溯</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== 04 价值收益 — White ====== -->
+<section class="section-white" id="value">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-number">04</div>
+      <h2 class="section-title">价值收益</h2>
+      <p class="section-desc">不是概念验证，是效率革命。量化对比，用数据说话。</p>
+    </div>
+
+    <div class="stats-row">
+      <div class="stat-item">
+        <div class="stat-number">10×</div>
+        <div class="stat-label">工艺参数查询效率提升</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">20×</div>
+        <div class="stat-label">异常分析报告生成效率</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-number">1</div>
+        <div class="stat-label">统一知识权威来源</div>
+      </div>
+    </div>
+
+    <!-- Before/After -->
+    <div class="compare-grid">
+      <div class="compare-card compare-before">
+        <div class="compare-label">Before · 现状</div>
+        <div class="compare-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#ff3b30" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+          翻 多 个系统 数分钟查一个工艺参数
+        </div>
+        <div class="compare-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#ff3b30" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+          设备故障排查全靠老师傅经验
+        </div>
+        <div class="compare-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#ff3b30" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+          每个系统单独接大模型，重复造轮子
+        </div>
+        <div class="compare-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#ff3b30" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+          AI 投入分散，成本不可控
+        </div>
+      </div>
+      <div class="compare-card compare-after">
+        <div class="compare-label">After · 之后</div>
+        <div class="compare-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          自然语言秒级返回 + 来源引用
+        </div>
+        <div class="compare-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          GraphRAG 关联推理 + 历史案例
+        </div>
+        <div class="compare-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          MCP 标准化接入，工具即插即用
+        </div>
+        <div class="compare-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#34c759" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          统一路由，按需选模型，成本可控
+        </div>
+      </div>
+    </div>
+
+    <!-- Value Dimensions -->
+    <div style="margin-top:48px">
+      <div class="value-grid">
+        <div class="value-card">
+          <div class="value-icon">📊</div>
+          <div class="value-title">数据价值</div>
+          <div class="value-desc">跨系统知识可查、可联、可用。同一知识只有一个权威来源。</div>
+        </div>
+        <div class="value-card">
+          <div class="value-icon">⚙️</div>
+          <div class="value-title">技术价值</div>
+          <div class="value-desc">分层架构替代烟囱式。MCP 工具即插即用。多模型路由，成本可控。</div>
+        </div>
+        <div class="value-card">
+          <div class="value-icon">🏛️</div>
+          <div class="value-title">管理价值</div>
+          <div class="value-desc">Prompt 版本管理、工具权限统一、知识质量可评测。沙箱执行、审计日志。</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== 05 落地路径 — Gray ====== -->
+<section class="section-gray" id="roadmap">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-number">05</div>
+      <h2 class="section-title">落地路径</h2>
+      <p class="section-desc">渐进式建设，每期有独立交付。不搞大而全，从 MES 切入。</p>
+    </div>
+
+    <div class="timeline">
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-date">一期 · </div>
+        <div class="timeline-title">MES 单场景 MVP</div>
+        <div class="timeline-desc">从 MES 切入，验证知识中台核心链路。跑通知识采集 → RAG 检索 → MCP 工具调用的完整闭环。</div>
+        <div class="timeline-chips">
+          <span class="timeline-chip">MES 知识查询</span>
+          <span class="timeline-chip">MCP 工具调用</span>
+          <span class="timeline-chip">基础 RAG</span>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-date">二期 · </div>
+        <div class="timeline-title">多场景 + Skill 体系</div>
+        <div class="timeline-desc">MES 场景从单点扩展到多场景，建立 Skill 框架让新场景快速接入。</div>
+        <div class="timeline-chips">
+          <span class="timeline-chip">设备诊断</span>
+          <span class="timeline-chip">工艺优化</span>
+          <span class="timeline-chip">智能报表</span>
+          <span class="timeline-chip">Skill 框架</span>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-date">三期 · </div>
+        <div class="timeline-title">跨系统扩展 + GraphRAG</div>
+        <div class="timeline-desc">接入 ERP/OA 知识，构建知识图谱 V0.5。本体设计 + 数仓对接。</div>
+        <div class="timeline-chips">
+          <span class="timeline-chip">ERP/OA 知识接入</span>
+          <span class="timeline-chip">图谱 V0.5</span>
+          <span class="timeline-chip">本体设计</span>
+          <span class="timeline-chip">数仓对接</span>
+        </div>
+      </div>
+      <div class="timeline-item">
+        <div class="timeline-dot"></div>
+        <div class="timeline-date">四期 · </div>
+        <div class="timeline-title">知识图谱 V1 + Agent 化</div>
+        <div class="timeline-desc">图谱推理能力成熟，A2A Agent 协作落地。从 MES 推广到全集团。</div>
+        <div class="timeline-chips">
+          <span class="timeline-chip">图谱推理</span>
+          <span class="timeline-chip">A2A Agent 协作</span>
+          <span class="timeline-chip">全集团推广</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== 05b 团队 — White ====== -->
+<section class="section-white">
+  <div class="section-inner">
+    <div class="section-header">
+      <h2 class="section-title" style="font-size:40px">团队配置</h2>
+    </div>
+    <div class="team-grid">
+      <div class="team-card">
+        <div class="team-icon">🎯</div>
+        <div class="team-name">项目负责人</div>
+        <div class="team-desc">整体规划、资源协调、对外汇报</div>
+        <div class="team-count">1 人</div>
+      </div>
+      <div class="team-card">
+        <div class="team-icon">🏗️</div>
+        <div class="team-name">AI 架构师</div>
+        <div class="team-desc">技术架构设计、选型决策、Code Review</div>
+        <div class="team-count">1 人</div>
+      </div>
+      <div class="team-card">
+        <div class="team-icon">💻</div>
+        <div class="team-name">后端工程师</div>
+        <div class="team-desc">MCP Server 开发、API 对接、Agent 开发</div>
+        <div class="team-count">2-3 人</div>
+      </div>
+      <div class="team-card">
+        <div class="team-icon">🧠</div>
+        <div class="team-name">知识工程师</div>
+        <div class="team-desc">知识建模、本体设计、知识抽取规则</div>
+        <div class="team-count">1 人</div>
+      </div>
+      <!-- <div class="team-card">
+        <div class="team-icon">🧪</div>
+        <div class="team-name">测试/运维</div>
+        <div class="team-desc">评测体系、部署运维、监控告警</div>
+        <div class="team-count">1 人</div>
+      </div>
+      <div class="team-card">
+        <div class="team-icon">📝</div>
+        <div class="team-name">补充说明</div>
+        <div class="team-desc">5-6 月以现有人员为主，7 月后根据进展补充</div>
+        <div class="team-count">弹性</div>
+      </div> -->
+    </div>
+  </div>
+</section>
+
+<!-- ====== 06 风险管控 — Gray ====== -->
+<section class="section-gray" id="risk">
+  <div class="section-inner">
+    <div class="section-header">
+      <div class="section-number">06</div>
+      <h2 class="section-title">风险管控</h2>
+      <p class="section-desc">不回避风险，正面应对。每个风险都有预案。</p>
+    </div>
+
+    <div class="risk-list">
+      <div class="risk-item">
+        <div class="risk-header">
+          <span class="risk-name">模型 API 不稳定</span>
+          <span class="risk-badge risk-mid">中概率 · 高影响</span>
+        </div>
+        <div class="risk-solution">多模型路由 + 降级策略 + 本地小模型兜底</div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-header">
+          <span class="risk-name">知识质量不达标</span>
+          <span class="risk-badge risk-high">高概率 · 中影响</span>
+        </div>
+        <div class="risk-solution">人工审核 + 自动校验 + Bad Case 持续优化</div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-header">
+          <span class="risk-name">业务方配合度低</span>
+          <span class="risk-badge risk-mid">中概率 · 高影响</span>
+        </div>
+        <div class="risk-solution">从 MES 单场景切入，快速出成果建立信心</div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-header">
+          <span class="risk-name">图数据库选型失误</span>
+          <span class="risk-badge risk-low">低概率 · 中影响</span>
+        </div>
+        <div class="risk-solution">GraphRAG 方案与存储引擎解耦，可替换</div>
+      </div>
+      <div class="risk-item">
+        <div class="risk-header">
+          <span class="risk-name">工期延期</span>
+          <span class="risk-badge risk-mid">中概率 · 中影响</span>
+        </div>
+        <div class="risk-solution">渐进式建设，每期有独立交付，不依赖后续</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== FOOTER ====== -->
+<footer class="footer">
+  <div class="footer-text">
+    集团 AI 知识中台 · 全景架构 v2.0 · 2026-04-25 · 今晚打老虎 🐾
+  </div>
+</footer>
+
+</body>
+</html>
